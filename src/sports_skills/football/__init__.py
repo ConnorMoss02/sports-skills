@@ -75,7 +75,7 @@ from sports_skills.football._connector import (
 
 def _params(**kwargs):
     """Build params dict, filtering out None values."""
-    return {k: v for k, v in kwargs.items() if v is not None}
+    return {"params": {k: v for k, v in kwargs.items() if v is not None}}
 
 
 def get_current_season(*, competition_id: str) -> dict:

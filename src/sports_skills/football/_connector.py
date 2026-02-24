@@ -1973,8 +1973,9 @@ def _normalize_tm_transfer(transfer, tm_player_id=""):
 # ============================================================
 
 
-def get_current_season(params):
+def get_current_season(request_data):
     """Detect current season for a competition using ESPN."""
+    params = request_data.get("params", {})
     competition_id = params.get("competition_id") or params.get(
         "command_attribute", {}
     ).get("competition_id", "")
@@ -2000,8 +2001,9 @@ def get_current_season(params):
     }
 
 
-def get_competitions(params):
+def get_competitions(request_data):
     """List available competitions with current season info."""
+    params = request_data.get("params", {})
     competitions = []
     for slug, league in LEAGUES.items():
         comp = {
@@ -2023,8 +2025,9 @@ def get_competitions(params):
     return {"competitions": competitions}
 
 
-def get_competition_seasons(params):
+def get_competition_seasons(request_data):
     """Get available seasons for a competition."""
+    params = request_data.get("params", {})
     competition_id = params.get("competition_id") or params.get(
         "command_attribute", {}
     ).get("competition_id", "")
@@ -2083,8 +2086,9 @@ def get_competition_seasons(params):
     return {"competition": comp_info, "seasons": seasons}
 
 
-def get_season_schedule(params):
+def get_season_schedule(request_data):
     """Get full season match schedule."""
+    params = request_data.get("params", {})
     season_id = params.get("season_id") or params.get("command_attribute", {}).get(
         "season_id", ""
     )
@@ -2137,8 +2141,9 @@ def get_season_schedule(params):
     return {"schedules": []}
 
 
-def get_season_standings(params):
+def get_season_standings(request_data):
     """Get season standings."""
+    params = request_data.get("params", {})
     season_id = params.get("season_id") or params.get("command_attribute", {}).get(
         "season_id", ""
     )
@@ -2169,8 +2174,9 @@ def get_season_standings(params):
     return {"standings": []}
 
 
-def get_season_leaders(params):
+def get_season_leaders(request_data):
     """Get top scorers/leaders. fd primary, FPL fallback for PL."""
+    params = request_data.get("params", {})
     season_id = params.get("season_id") or params.get("command_attribute", {}).get(
         "season_id", ""
     )
@@ -2190,8 +2196,9 @@ def get_season_leaders(params):
     }
 
 
-def get_season_teams(params):
+def get_season_teams(request_data):
     """Get teams in a season."""
+    params = request_data.get("params", {})
     season_id = params.get("season_id") or params.get("command_attribute", {}).get(
         "season_id", ""
     )
@@ -2224,8 +2231,9 @@ def get_season_teams(params):
     return {"teams": []}
 
 
-def search_team(params):
+def search_team(request_data):
     """Search for a team by name across all leagues (or a specific one)."""
+    params = request_data.get("params", {})
     query = params.get("query") or params.get("command_attribute", {}).get("query", "")
     if not query:
         return {"results": [], "error": True, "message": "Missing query"}
@@ -2274,8 +2282,9 @@ def search_team(params):
     return {"results": results}
 
 
-def get_team_profile(params):
+def get_team_profile(request_data):
     """Get team profile with squad/roster. FPL enrichment for PL teams."""
+    params = request_data.get("params", {})
     team_id = params.get("team_id") or params.get("command_attribute", {}).get(
         "team_id", ""
     )
@@ -2331,8 +2340,9 @@ def get_team_profile(params):
     return result
 
 
-def get_daily_schedule(params):
+def get_daily_schedule(request_data):
     """Get all matches for a specific date across all leagues."""
+    params = request_data.get("params", {})
     date = params.get("date") or params.get("command_attribute", {}).get("date", "")
     if not date:
         date = datetime.utcnow().strftime("%Y-%m-%d")
@@ -2378,8 +2388,9 @@ def get_daily_schedule(params):
 # --- Event Details (ESPN summary primary) ---
 
 
-def get_event_summary(params):
+def get_event_summary(request_data):
     """Get match summary with basic info and scores."""
+    params = request_data.get("params", {})
     event_id = params.get("event_id") or params.get("command_attribute", {}).get(
         "event_id", ""
     )
@@ -2417,8 +2428,9 @@ def get_event_summary(params):
     }
 
 
-def get_event_lineups(params):
+def get_event_lineups(request_data):
     """Get match lineups from ESPN summary."""
+    params = request_data.get("params", {})
     event_id = params.get("event_id") or params.get("command_attribute", {}).get(
         "event_id", ""
     )
@@ -2436,8 +2448,9 @@ def get_event_lineups(params):
     return {"lineups": []}
 
 
-def get_event_statistics(params):
+def get_event_statistics(request_data):
     """Get match team statistics from ESPN summary."""
+    params = request_data.get("params", {})
     event_id = params.get("event_id") or params.get("command_attribute", {}).get(
         "event_id", ""
     )
@@ -2454,8 +2467,9 @@ def get_event_statistics(params):
     return {"teams": []}
 
 
-def get_event_timeline(params):
+def get_event_timeline(request_data):
     """Get match timeline/key events from ESPN summary."""
+    params = request_data.get("params", {})
     event_id = params.get("event_id") or params.get("command_attribute", {}).get(
         "event_id", ""
     )
@@ -2472,8 +2486,9 @@ def get_event_timeline(params):
     return {"timeline": []}
 
 
-def get_team_schedule(params):
+def get_team_schedule(request_data):
     """Get schedule for a specific team."""
+    params = request_data.get("params", {})
     team_id = params.get("team_id") or params.get("command_attribute", {}).get(
         "team_id", ""
     )
@@ -2549,8 +2564,9 @@ def get_team_schedule(params):
     return {"team": {}, "events": [], "message": "Team schedule not found"}
 
 
-def get_head_to_head(params):
+def get_head_to_head(request_data):
     """Get head-to-head history (unavailable — use get_team_schedule for both teams instead)."""
+    params = request_data.get("params", {})
     return {
         "teams": [],
         "events": [],
@@ -2561,8 +2577,9 @@ def get_head_to_head(params):
 # --- Enrichment (Understat + ESPN) ---
 
 
-def get_event_xg(params):
+def get_event_xg(request_data):
     """Get expected goals (xG) data from Understat (5 top leagues)."""
+    params = request_data.get("params", {})
     event_id = params.get("event_id") or params.get("command_attribute", {}).get(
         "event_id", ""
     )
@@ -2621,8 +2638,9 @@ def get_event_xg(params):
     return result
 
 
-def get_event_players_statistics(params):
+def get_event_players_statistics(request_data):
     """Get player-level match statistics from ESPN + Understat xG."""
+    params = request_data.get("params", {})
     event_id = params.get("event_id") or params.get("command_attribute", {}).get(
         "event_id", ""
     )
@@ -2687,8 +2705,9 @@ def _merge_understat_player_xg(espn_teams, ustat_teams):
                 ep["statistics"]["key_passes"] = str(up.get("key_passes", 0))
 
 
-def get_missing_players(params):
+def get_missing_players(request_data):
     """Get injured/missing/doubtful players. FPL source for PL."""
+    params = request_data.get("params", {})
     season_id = params.get("season_id") or params.get("command_attribute", {}).get(
         "season_id", ""
     )
@@ -2712,8 +2731,9 @@ def get_missing_players(params):
     }
 
 
-def get_season_transfers(params):
+def get_season_transfers(request_data):
     """Get season transfers. Transfermarkt ceapi when tm_player_ids provided."""
+    params = request_data.get("params", {})
     season_id = params.get("season_id") or params.get("command_attribute", {}).get(
         "season_id", ""
     )
@@ -2747,8 +2767,9 @@ def get_season_transfers(params):
     return {"season_id": season_id, "transfers": all_transfers}
 
 
-def get_player_profile(params):
+def get_player_profile(request_data):
     """Get player profile. FPL for PL, Transfermarkt enrichment."""
+    params = request_data.get("params", {})
     player_id = params.get("player_id") or params.get("command_attribute", {}).get(
         "player_id", ""
     )
@@ -2804,12 +2825,13 @@ def get_player_profile(params):
     return {"player": player}
 
 
-def get_player_season_stats(params):
+def get_player_season_stats(request_data):
     """Get player season gamelog with per-match stats via ESPN overview endpoint.
 
     Returns appearances, goals, assists, shots, shots on target, fouls,
     offsides, and cards for each match in the current season.
     """
+    params = request_data.get("params", {})
     player_id = params.get("player_id") or params.get("command_attribute", {}).get(
         "player_id", ""
     )

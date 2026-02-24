@@ -1193,3 +1193,81 @@ class TestLoadModuleRaisesExceptions:
 
         with pytest.raises(ValueError, match="Unknown module"):
             _load_module("nonexistent_sport")
+
+
+class TestParamsContract:
+    """Verify _params() returns a wrapped dict in all modules.
+
+    All modules use {"params": {...}} so the Machina connector contract
+    is consistent and new modules can copy any pattern safely.
+    """
+
+    def test_nfl_params_is_wrapped(self):
+        from sports_skills.nfl import _params
+
+        result = _params(date="2026-02-24", week=1)
+        assert "params" in result
+        assert result["params"]["date"] == "2026-02-24"
+        assert result["params"]["week"] == 1
+
+    def test_nba_params_is_wrapped(self):
+        from sports_skills.nba import _params
+
+        result = _params(date="2026-02-24")
+        assert "params" in result
+        assert result["params"]["date"] == "2026-02-24"
+
+    def test_nhl_params_is_wrapped(self):
+        from sports_skills.nhl import _params
+
+        result = _params(team_id="1")
+        assert "params" in result
+        assert result["params"]["team_id"] == "1"
+
+    def test_mlb_params_is_wrapped(self):
+        from sports_skills.mlb import _params
+
+        result = _params(season=2025)
+        assert "params" in result
+        assert result["params"]["season"] == 2025
+
+    def test_wnba_params_is_wrapped(self):
+        from sports_skills.wnba import _params
+        
+        result = _params(date="2026-02-24")
+        assert "params" in result
+        assert result["params"]["date"] == "2026-02-24"
+
+    def test_cfb_params_is_wrapped(self):
+        from sports_skills.cfb import _params
+
+        result = _params(season=2025, week=8)
+        assert "params" in result
+        assert result["params"]["season"] == 2025
+
+    def test_cbb_params_is_wrapped(self):
+        from sports_skills.cbb import _params
+
+        result = _params(season=2025)
+        assert "params" in result
+        assert result["params"]["season"] == 2025
+
+    def test_none_values_are_filtered(self):
+        """None values should be dropped regardless of module."""
+        from sports_skills.nfl import _params
+
+        result = _params(date="2026-02-24", week=None)
+        assert "week" not in result["params"]
+        assert "date" in result["params"]
+
+    def test_football_and_nfl_params_match_shape(self):
+        """football and nfl must return the same shape — the whole point of this fix."""
+        from sports_skills.nfl import _params as nfl_params
+        from sports_skills.football import _params as football_params
+        
+        nfl_result = nfl_params(date="2026-02-24")
+        football_result = football_params(date="2026-02-24")
+        assert "params" in nfl_result
+        assert "params" in football_result
+        assert nfl_result["params"]["date"] == "2026-02-24"
+        assert football_result["params"]["date"] == "2026-02-24"
