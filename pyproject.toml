@@ -27,10 +27,13 @@ classifiers = [
 ]
 dependencies = [
     "feedparser>=6.0",
+    "fastf1>=3.0",
+    "pandas>=2.0",
 ]
 
 [project.optional-dependencies]
-f1 = ["fastf1>=3.0", "pandas>=2.0"]
+# F1 deps are included in base install; keep this extra for compatibility.
+f1 = []
 nfl = ["nfl-data-py>=0.3"]
 nba = []
 wnba = []
@@ -40,7 +43,7 @@ tennis = []
 cfb = []
 cbb = []
 golf = []
-all = ["fastf1>=3.0", "pandas>=2.0", "feedparser>=6.0", "nfl-data-py>=0.3"]
+all = ["nfl-data-py>=0.3"]
 dev = ["ruff>=0.9", "pytest>=8.0", "fastf1>=3.0", "pandas>=2.0"]
 
 [project.scripts]

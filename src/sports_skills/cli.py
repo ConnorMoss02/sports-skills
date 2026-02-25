@@ -358,9 +358,35 @@ _INT_PARAMS = {
 _LIST_PARAMS = {"tm_player_ids", "token_ids"}
 
 
-def _cli_error(message):
+class OptionalDependencyError(ImportError):
+    """Structured error for missing optional dependencies."""
+
+    def __init__(self, message: str, *, dependency: str, extra: str, hint: str):
+        super().__init__(message)
+        self.dependency = dependency
+        self.extra = extra
+        self.hint = hint
+
+
+def _cli_error(
+    message,
+    *,
+    error_code=None,
+    hint=None,
+    dependency=None,
+    extra=None,
+):
     """Print error as JSON to stdout (for agents) and plain text to stderr (for humans), then exit."""
-    print(json.dumps({"status": False, "data": None, "message": message}, indent=2))
+    payload = {"status": False, "data": None, "message": message}
+    if error_code:
+        payload["error_code"] = error_code
+    if hint:
+        payload["hint"] = hint
+    if dependency:
+        payload["dependency"] = dependency
+    if extra:
+        payload["extra"] = extra
+    print(json.dumps(payload, indent=2))
     print(f"Error: {message}", file=sys.stderr)
     sys.exit(1)
 
@@ -384,14 +410,30 @@ def _load_module(name):
 
         return news
     elif name == "f1":
+        err_msg = (
+            "F1 module dependencies are unavailable in this environment."
+        )
+        hint = "python3 -m pip install --upgrade sports-skills"
         try:
             from sports_skills import f1
 
             if f1 is None:
-                raise ImportError
+                raise OptionalDependencyError(
+                    err_msg,
+                    dependency="fastf1",
+                    extra="f1",
+                    hint=hint,
+                )
             return f1
+        except OptionalDependencyError:
+            raise
         except ImportError as e:
-            raise ImportError("F1 module requires extra dependencies. Install with: pip install sports-skills[f1]") from e
+            raise OptionalDependencyError(
+                err_msg,
+                dependency="fastf1",
+                extra="f1",
+                hint=hint,
+            ) from e
     elif name == "nfl":
         from sports_skills import nfl
 
@@ -652,6 +694,14 @@ def main():
     # Load module and call function
     try:
         module = _load_module(module_name)
+    except OptionalDependencyError as e:
+        _cli_error(
+            str(e),
+            error_code="MISSING_OPTIONAL_DEPENDENCY",
+            hint=e.hint,
+            dependency=e.dependency,
+            extra=e.extra,
+        )
     except (ImportError, ValueError) as e:
         _cli_error(str(e))
     func = getattr(module, command_name, None)

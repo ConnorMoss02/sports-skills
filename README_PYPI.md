@@ -1,5 +1,7 @@
 # sports-skills
 
+https://sports-skills.sh
+
 A lightweight, zero-config Python SDK and CLI for live sports data and prediction markets. 
 
 Built natively for AI agents, but works perfectly as a standalone Python library for developers. Wraps publicly available sports data sources and APIs into unified, deterministic commands.
@@ -18,12 +20,21 @@ uv tool install sports-skills
 pip install sports-skills
 ```
 
+Base install includes all sports modules.
+
 Install as a Python library:
 
 ```bash
 uv add sports-skills
 # or
 pip install sports-skills
+```
+
+Optional extras:
+
+```bash
+pip install "sports-skills[all]"
+pip install "sports-skills[dev]"
 ```
 
 ---

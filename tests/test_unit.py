@@ -1195,6 +1195,51 @@ class TestLoadModuleRaisesExceptions:
             _load_module("nonexistent_sport")
 
 
+class TestCliOptionalDependencyErrors:
+    """Structured errors for missing optional deps should be machine-readable."""
+
+    def test_cli_error_includes_optional_dependency_fields(self, capsys):
+        import json
+        import pytest
+
+        from sports_skills.cli import _cli_error
+
+        with pytest.raises(SystemExit) as exc:
+            _cli_error(
+                "F1 module dependencies are unavailable in this environment.",
+                error_code="MISSING_OPTIONAL_DEPENDENCY",
+                hint="python3 -m pip install --upgrade sports-skills",
+                dependency="fastf1",
+                extra="f1",
+            )
+
+        captured = capsys.readouterr()
+        payload = json.loads(captured.out)
+        assert exc.value.code == 1
+        assert payload["status"] is False
+        assert payload["error_code"] == "MISSING_OPTIONAL_DEPENDENCY"
+        assert payload["dependency"] == "fastf1"
+        assert payload["extra"] == "f1"
+        assert "sports-skills" in payload["hint"]
+        assert "Error:" in captured.err
+
+    def test_load_module_f1_raises_structured_optional_dependency(self, monkeypatch):
+        import pytest
+        import sports_skills
+
+        from sports_skills.cli import OptionalDependencyError, _load_module
+
+        monkeypatch.setattr(sports_skills, "f1", None, raising=False)
+
+        with pytest.raises(OptionalDependencyError) as exc:
+            _load_module("f1")
+
+        err = exc.value
+        assert err.dependency == "fastf1"
+        assert err.extra == "f1"
+        assert "sports-skills" in err.hint
+
+
 class TestParamsContract:
     """Verify _params() returns a wrapped dict in all modules.
 
@@ -1271,4 +1316,3 @@ class TestParamsContract:
         assert "params" in football_result
         assert nfl_result["params"]["date"] == "2026-02-24"
         assert football_result["params"]["date"] == "2026-02-24"
-

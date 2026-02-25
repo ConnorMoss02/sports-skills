@@ -1,5 +1,7 @@
 # sports-skills.sh
 
+https://sports-skills.sh
+
 Open-source agent skills for live sports data and prediction markets. Built for the [Agent Skills](https://agentskills.io/specification) spec. Works with Claude Code, Cursor, Copilot, Gemini CLI, and every major AI agent.
 
 **Zero API keys. Zero signup. Just works.**
@@ -7,6 +9,14 @@ Open-source agent skills for live sports data and prediction markets. Built for 
 ```bash
 npx skills add machina-sports/sports-skills
 ```
+
+Python package users:
+
+```bash
+pip install sports-skills
+```
+
+Includes all sports modules in the base package.
 
 To upgrade to the latest version, run the same command with the `--yes` flag:
 
