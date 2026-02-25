@@ -2003,7 +2003,6 @@ def get_current_season(request_data):
 
 def get_competitions(request_data):
     """List available competitions with current season info."""
-    params = request_data.get("params", {})
     competitions = []
     for slug, league in LEAGUES.items():
         comp = {
@@ -2566,7 +2565,6 @@ def get_team_schedule(request_data):
 
 def get_head_to_head(request_data):
     """Get head-to-head history (unavailable — use get_team_schedule for both teams instead)."""
-    params = request_data.get("params", {})
     return {
         "teams": [],
         "events": [],

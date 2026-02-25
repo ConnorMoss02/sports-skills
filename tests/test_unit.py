@@ -1233,7 +1233,7 @@ class TestParamsContract:
 
     def test_wnba_params_is_wrapped(self):
         from sports_skills.wnba import _params
-        
+
         result = _params(date="2026-02-24")
         assert "params" in result
         assert result["params"]["date"] == "2026-02-24"
@@ -1262,12 +1262,13 @@ class TestParamsContract:
 
     def test_football_and_nfl_params_match_shape(self):
         """football and nfl must return the same shape — the whole point of this fix."""
-        from sports_skills.nfl import _params as nfl_params
         from sports_skills.football import _params as football_params
-        
+        from sports_skills.nfl import _params as nfl_params
+
         nfl_result = nfl_params(date="2026-02-24")
         football_result = football_params(date="2026-02-24")
         assert "params" in nfl_result
         assert "params" in football_result
         assert nfl_result["params"]["date"] == "2026-02-24"
         assert football_result["params"]["date"] == "2026-02-24"
+
