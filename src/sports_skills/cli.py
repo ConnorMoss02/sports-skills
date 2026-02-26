@@ -88,6 +88,53 @@ _REGISTRY = {
             "optional": ["interval", "fidelity"],
         },
         "get_last_trade_price": {"required": ["token_id"]},
+        # Wallet configuration
+        "configure": {"optional": ["private_key", "signature_type"]},
+        # --- CLI commands (require polymarket binary) ---
+        # Data & Analytics
+        "get_leaderboard": {"optional": ["period", "order_by", "limit"]},
+        "get_positions": {"required": ["address"]},
+        "get_closed_positions": {"required": ["address"]},
+        "get_portfolio_value": {"required": ["address"]},
+        "get_trade_history": {"required": ["address"], "optional": ["limit"]},
+        "get_activity": {"required": ["address"]},
+        "get_holders": {"required": ["condition_id"]},
+        "get_open_interest": {"required": ["condition_id"]},
+        "get_volume": {"required": ["event_id"]},
+        "get_traded": {"required": ["address"]},
+        # Enhanced Search & Tags
+        "cli_search_markets": {"required": ["query"], "optional": ["limit"]},
+        "get_tags": {"optional": ["limit"]},
+        "get_tag": {"required": ["tag"]},
+        "get_related_tags": {"required": ["tag"]},
+        # Comments & Profiles
+        "get_comments": {"required": ["entity_type", "entity_id"]},
+        "get_comment": {"required": ["comment_id"]},
+        "get_user_comments": {"required": ["address"]},
+        "get_profile": {"required": ["address"]},
+        # Sports Metadata
+        "cli_sports_list": {},
+        "cli_sports_teams": {"required": ["league"], "optional": ["limit"]},
+        # CLOB Extras
+        "get_tick_size": {"required": ["token_id"]},
+        "get_fee_rate": {"required": ["token_id"]},
+        # Trading (authenticated — requires wallet)
+        "create_order": {
+            "required": ["token_id", "side", "price", "size"],
+            "optional": ["order_type"],
+        },
+        "market_order": {"required": ["token_id", "side", "amount"]},
+        "cancel_order": {"required": ["order_id"]},
+        "cancel_all_orders": {},
+        "get_balance": {"optional": ["asset_type", "token_id"]},
+        "get_orders": {"optional": ["market"]},
+        "get_user_trades": {},
+        # On-Chain Operations (authenticated — requires wallet)
+        "ctf_split": {"required": ["condition_id", "amount"]},
+        "ctf_merge": {"required": ["condition_id", "amount"]},
+        "ctf_redeem": {"required": ["condition_id"]},
+        "approve_check": {"optional": ["address"]},
+        "approve_set": {},
     },
     "kalshi": {
         "get_exchange_status": {},
