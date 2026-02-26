@@ -178,6 +178,30 @@ _REGISTRY = {
         },
         "get_sports_filters": {},
     },
+    "betting": {
+        "convert_odds": {"required": ["odds", "from_format"]},
+        "devig": {"required": ["odds"], "optional": ["format"]},
+        "find_edge": {"required": ["fair_prob", "market_prob"]},
+        "kelly_criterion": {"required": ["fair_prob", "market_prob"]},
+        "evaluate_bet": {
+            "required": ["book_odds", "market_prob"],
+            "optional": ["book_format", "outcome"],
+        },
+        "find_arbitrage": {"required": ["market_probs"], "optional": ["labels"]},
+        "parlay_analysis": {
+            "required": ["legs", "parlay_odds"],
+            "optional": ["odds_format", "correlation"],
+        },
+        "line_movement": {
+            "optional": [
+                "open_odds",
+                "close_odds",
+                "open_line",
+                "close_line",
+                "market_type",
+            ],
+        },
+    },
     "news": {
         "fetch_feed": {
             "optional": [
@@ -402,6 +426,19 @@ _INT_PARAMS = {
     "group",
 }
 
+# Params that should be parsed as float
+_FLOAT_PARAMS = {
+    "odds",
+    "fair_prob",
+    "market_prob",
+    "parlay_odds",
+    "open_odds",
+    "close_odds",
+    "open_line",
+    "close_line",
+    "correlation",
+}
+
 # Params that should be parsed as list (comma-separated)
 _LIST_PARAMS = {"tm_player_ids", "token_ids"}
 
@@ -453,6 +490,10 @@ def _load_module(name):
         from sports_skills import kalshi
 
         return kalshi
+    elif name == "betting":
+        from sports_skills import betting
+
+        return betting
     elif name == "news":
         from sports_skills import news
 
@@ -527,6 +568,8 @@ def _parse_value(key, value):
         return value.lower() in ("true", "1", "yes", "")
     if key in _INT_PARAMS:
         return int(value)
+    if key in _FLOAT_PARAMS:
+        return float(value)
     if key in _LIST_PARAMS:
         return [v.strip() for v in value.split(",")]
     return value
