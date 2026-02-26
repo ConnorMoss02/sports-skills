@@ -58,19 +58,15 @@ def configure(
     private_key: str | None = None,
     signature_type: str | None = None,
 ) -> dict:
-    """Configure wallet credentials for trading commands.
+    """Configure wallet for trading and on-chain commands. Alternative to setting POLYMARKET_PRIVATE_KEY=0x... in .env.
 
-    Credentials are passed to the CLI via environment variables (never
-    exposed in process arguments).  This is optional — the CLI also
-    reads ``POLYMARKET_PRIVATE_KEY`` from the shell environment and
-    ``~/.config/polymarket/config.json``.
+    Two ways to authenticate:
+      1. Add POLYMARKET_PRIVATE_KEY=0x... to your .env file (simplest).
+      2. Call this: configure(private_key="0x...").
 
     Args:
         private_key: Polygon wallet private key (hex string starting with 0x).
         signature_type: One of "proxy" (default), "eoa", or "gnosis-safe".
-
-    Returns:
-        Standard envelope confirming configuration was saved.
     """
     if private_key is not None:
         _CONFIG["private_key"] = private_key

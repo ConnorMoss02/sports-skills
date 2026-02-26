@@ -426,41 +426,60 @@ def create_order(
     size: str,
     order_type: str = "GTC",
 ) -> dict:
-    """Place a limit order (requires CLI + wallet)."""
+    """Place a limit order. Auth required: set POLYMARKET_PRIVATE_KEY=0x... in .env or call configure(private_key=...) first.
+
+    Args:
+        token_id: Market token ID.
+        side: Order side — "buy" or "sell".
+        price: Limit price (0.01–0.99).
+        size: Number of shares.
+        order_type: Order type — "GTC" (default), "FOK", or "GTD".
+    """
     return _cli_create_order(
         token_id=token_id, side=side, price=price, size=size, order_type=order_type
     )
 
 
 def market_order(*, token_id: str, side: str, amount: str) -> dict:
-    """Place a market order (requires CLI + wallet)."""
+    """Place a market order. Auth required: set POLYMARKET_PRIVATE_KEY=0x... in .env or call configure(private_key=...) first.
+
+    Args:
+        token_id: Market token ID.
+        side: Order side — "buy" or "sell".
+        amount: USDC amount to spend.
+    """
     return _cli_market_order(token_id=token_id, side=side, amount=amount)
 
 
 def cancel_order(*, order_id: str) -> dict:
-    """Cancel a specific order (requires CLI + wallet)."""
+    """Cancel a specific order. Auth required: set POLYMARKET_PRIVATE_KEY=0x... in .env or call configure(private_key=...) first."""
     return _cli_cancel_order(order_id=order_id)
 
 
 def cancel_all_orders() -> dict:
-    """Cancel all open orders (requires CLI + wallet)."""
+    """Cancel all open orders. Auth required: set POLYMARKET_PRIVATE_KEY=0x... in .env or call configure(private_key=...) first."""
     return _cli_cancel_all_orders()
 
 
 def get_balance(
     *, asset_type: str = "collateral", token_id: str | None = None
 ) -> dict:
-    """Check wallet balance (requires CLI + wallet)."""
+    """Check wallet balance. Auth required: set POLYMARKET_PRIVATE_KEY=0x... in .env or call configure(private_key=...) first.
+
+    Args:
+        asset_type: Asset type — "collateral" (USDC, default) or "conditional".
+        token_id: Token ID (required when asset_type is "conditional").
+    """
     return _cli_get_balance(asset_type=asset_type, token_id=token_id)
 
 
 def get_orders(*, market: str | None = None) -> dict:
-    """View open orders (requires CLI + wallet)."""
+    """View open orders. Auth required: set POLYMARKET_PRIVATE_KEY=0x... in .env or call configure(private_key=...) first."""
     return _cli_get_orders(market=market)
 
 
 def get_user_trades() -> dict:
-    """View your recent trades (requires CLI + wallet)."""
+    """View your recent trades. Auth required: set POLYMARKET_PRIVATE_KEY=0x... in .env or call configure(private_key=...) first."""
     return _cli_get_user_trades()
 
 
@@ -470,17 +489,17 @@ def get_user_trades() -> dict:
 
 
 def ctf_split(*, condition_id: str, amount: str) -> dict:
-    """Split USDC into YES/NO conditional tokens (requires CLI + wallet)."""
+    """Split USDC into YES/NO conditional tokens. Auth required: set POLYMARKET_PRIVATE_KEY=0x... in .env or call configure(private_key=...) first."""
     return _cli_ctf_split(condition_id=condition_id, amount=amount)
 
 
 def ctf_merge(*, condition_id: str, amount: str) -> dict:
-    """Merge YES/NO tokens back into USDC (requires CLI + wallet)."""
+    """Merge YES/NO tokens back into USDC. Auth required: set POLYMARKET_PRIVATE_KEY=0x... in .env or call configure(private_key=...) first."""
     return _cli_ctf_merge(condition_id=condition_id, amount=amount)
 
 
 def ctf_redeem(*, condition_id: str) -> dict:
-    """Redeem winning tokens after market resolution (requires CLI + wallet)."""
+    """Redeem winning tokens after market resolution. Auth required: set POLYMARKET_PRIVATE_KEY=0x... in .env or call configure(private_key=...) first."""
     return _cli_ctf_redeem(condition_id=condition_id)
 
 
@@ -490,5 +509,5 @@ def approve_check(*, address: str | None = None) -> dict:
 
 
 def approve_set() -> dict:
-    """Approve all Polymarket contracts for trading (requires CLI + wallet)."""
+    """Approve all Polymarket contracts for trading. Auth required: set POLYMARKET_PRIVATE_KEY=0x... in .env or call configure(private_key=...) first."""
     return _cli_approve_set()
