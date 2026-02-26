@@ -1,8 +1,24 @@
 """sports-skills: Lightweight Python SDK for sports data."""
 
-__version__ = "0.9.9"
+__version__ = "0.10.0"
 
-from sports_skills import cbb, cfb, football, golf, kalshi, mlb, nba, news, nfl, nhl, polymarket, tennis, wnba
+from sports_skills import (
+    betting,
+    cbb,
+    cfb,
+    football,
+    golf,
+    kalshi,
+    markets,
+    mlb,
+    nba,
+    news,
+    nfl,
+    nhl,
+    polymarket,
+    tennis,
+    wnba,
+)
 
 # F1 is optional — requires fastf1 + pandas
 try:
@@ -10,4 +26,4 @@ try:
 except ImportError:
     f1 = None
 
-__all__ = ["football", "f1", "polymarket", "kalshi", "news", "nfl", "nba", "wnba", "nhl", "mlb", "tennis", "cfb", "cbb", "golf"]
+__all__ = ["football", "f1", "polymarket", "kalshi", "betting", "markets", "news", "nfl", "nba", "wnba", "nhl", "mlb", "tennis", "cfb", "cbb", "golf"]

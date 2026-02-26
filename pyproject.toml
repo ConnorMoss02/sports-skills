@@ -4,15 +4,15 @@ build-backend = "hatchling.build"
 
 [project]
 name = "sports-skills"
-version = "0.9.9"
-description = "Lightweight Python SDK for sports data — football, F1, NFL, NBA, WNBA, NHL, MLB, tennis, CFB, CBB, golf, prediction markets, and news"
+version = "0.10.0"
+description = "Lightweight Python SDK for sports data — football, F1, NFL, NBA, WNBA, NHL, MLB, tennis, CFB, CBB, golf, prediction markets, betting analysis, and news"
 readme = "README_PYPI.md"
 requires-python = ">=3.9"
 license = "MIT"
 authors = [
     { name = "Machina Sports", email = "hello@machina.gg" },
 ]
-keywords = ["sports", "football", "f1", "nfl", "nba", "wnba", "nhl", "mlb", "tennis", "atp", "wta", "cfb", "cbb", "college-football", "college-basketball", "ncaa", "golf", "pga", "lpga", "polymarket", "kalshi", "prediction-markets", "news"]
+keywords = ["sports", "football", "f1", "nfl", "nba", "wnba", "nhl", "mlb", "tennis", "atp", "wta", "cfb", "cbb", "college-football", "college-basketball", "ncaa", "golf", "pga", "lpga", "polymarket", "kalshi", "prediction-markets", "betting", "odds-comparison", "arbitrage", "news"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",

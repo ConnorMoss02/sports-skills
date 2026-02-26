@@ -1,0 +1,126 @@
+"""Markets orchestration — connects ESPN schedules with Kalshi & Polymarket.
+
+Bridges live sports schedules with prediction markets for unified dashboards,
+odds comparison, entity search, and bet evaluation. Reuses betting module for
+odds conversion and arbitrage detection.
+
+No extra dependencies — uses existing sport modules and prediction market modules.
+"""
+
+from __future__ import annotations
+
+from sports_skills.markets._connector import (
+    compare_odds as _compare_odds,
+)
+from sports_skills.markets._connector import (
+    evaluate_market as _evaluate_market,
+)
+from sports_skills.markets._connector import (
+    get_sport_markets as _get_sport_markets,
+)
+from sports_skills.markets._connector import (
+    get_sport_schedule as _get_sport_schedule,
+)
+from sports_skills.markets._connector import (
+    get_todays_markets as _get_todays_markets,
+)
+from sports_skills.markets._connector import (
+    normalize_price as _normalize_price,
+)
+from sports_skills.markets._connector import (
+    search_entity as _search_entity,
+)
+
+
+def _req(**kwargs):
+    """Build request_data dict from kwargs."""
+    return {"params": {k: v for k, v in kwargs.items() if v is not None}}
+
+
+def get_todays_markets(*, sport: str | None = None, date: str | None = None) -> dict:
+    """Fetch ESPN schedule, search both exchanges, return unified dashboard.
+
+    Args:
+        sport: Sport key (nba, nfl, mlb, nhl, wnba, cfb, cbb). Omit for all sports.
+        date: Date in YYYY-MM-DD format. Defaults to today.
+    """
+    return _get_todays_markets(_req(sport=sport, date=date))
+
+
+def search_entity(*, query: str, sport: str | None = None) -> dict:
+    """Search Kalshi + Polymarket for a team, player, or event name.
+
+    Args:
+        query: Search query (e.g. "Lakers", "Patrick Mahomes", "Super Bowl").
+        sport: Optional sport key to scope Kalshi search.
+    """
+    return _search_entity(_req(query=query, sport=sport))
+
+
+def compare_odds(*, sport: str, event_id: str) -> dict:
+    """ESPN odds + prediction market prices, normalized side-by-side + arb check.
+
+    Args:
+        sport: Sport key (nba, nfl, etc.).
+        event_id: ESPN event ID (from get_scoreboard or get_sport_schedule).
+    """
+    return _compare_odds(_req(sport=sport, event_id=event_id))
+
+
+def get_sport_markets(*, sport: str, status: str | None = None, limit: int | None = None) -> dict:
+    """Sports-filtered market listing on both Kalshi and Polymarket.
+
+    Args:
+        sport: Sport key (nba, nfl, etc.).
+        status: Market status filter (default: "open").
+        limit: Max results per platform (default: 20).
+    """
+    return _get_sport_markets(_req(sport=sport, status=status, limit=limit))
+
+
+def get_sport_schedule(*, sport: str | None = None, date: str | None = None) -> dict:
+    """Unified ESPN schedule across one or all sports.
+
+    Args:
+        sport: Sport key. Omit for all sports.
+        date: Date in YYYY-MM-DD format. Defaults to today.
+    """
+    return _get_sport_schedule(_req(sport=sport, date=date))
+
+
+def normalize_price(*, price: float, source: str) -> dict:
+    """Convert any source format to common {implied_prob, american, decimal}.
+
+    Args:
+        price: The price/odds value to normalize.
+        source: Source platform — "polymarket", "kalshi", or "espn".
+    """
+    return _normalize_price(_req(price=price, source=source))
+
+
+def evaluate_market(
+    *,
+    sport: str,
+    event_id: str,
+    token_id: str | None = None,
+    kalshi_ticker: str | None = None,
+    outcome: int | None = None,
+) -> dict:
+    """All-in-one: ESPN odds + market price, devig, edge, Kelly.
+
+    Args:
+        sport: Sport key (nba, nfl, etc.).
+        event_id: ESPN event ID.
+        token_id: Polymarket token ID (optional, for direct price lookup).
+        kalshi_ticker: Kalshi market ticker (optional, for direct price lookup).
+        outcome: Which outcome to evaluate (0=home, 1=away, default: 0).
+    """
+    return _evaluate_market(
+        _req(
+            sport=sport,
+            event_id=event_id,
+            token_id=token_id,
+            kalshi_ticker=kalshi_ticker,
+            outcome=outcome,
+        )
+    )
