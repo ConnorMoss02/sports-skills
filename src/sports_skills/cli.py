@@ -315,6 +315,7 @@ _REGISTRY = {
         "get_live_scoreboard": {},
         "get_live_boxscore": {"required": ["game_id"]},
         "get_live_playbyplay": {"required": ["game_id"]},
+        "get_player_live_stats": {"required": ["player_name"]},
     },
     "wnba": {
         "get_scoreboard": {"optional": ["date"]},
