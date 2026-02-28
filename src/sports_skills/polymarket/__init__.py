@@ -52,6 +52,9 @@ from sports_skills.polymarket._connector import (
     get_series as _get_series,
 )
 from sports_skills.polymarket._connector import (
+    get_sports_config as _get_sports_config,
+)
+from sports_skills.polymarket._connector import (
     get_sports_events as _get_sports_events,
 )
 from sports_skills.polymarket._connector import (
@@ -59,6 +62,9 @@ from sports_skills.polymarket._connector import (
 )
 from sports_skills.polymarket._connector import (
     get_sports_markets as _get_sports_markets,
+)
+from sports_skills.polymarket._connector import (
+    get_todays_events as _get_todays_events,
 )
 from sports_skills.polymarket._connector import (
     search_markets as _search_markets,
@@ -159,17 +165,49 @@ def get_sports_market_types() -> dict:
     return _get_sports_market_types(_req())
 
 
+def get_sports_config() -> dict:
+    """Get available sports and their series IDs for filtering.
+
+    Returns sport codes you can use with search_markets(sport=...) and
+    get_todays_events(sport=...). Examples: 'nba', 'epl', 'nfl', 'nhl',
+    'mlb', 'bun', 'fl1', 'ucl', 'mls', 'atp', 'wta'.
+    """
+    return _get_sports_config(_req())
+
+
+def get_todays_events(*, sport: str, limit: int = 30) -> dict:
+    """Get today's events (single-game markets) for a specific sport.
+
+    Args:
+        sport: Sport code — e.g. 'nba', 'epl', 'nfl', 'nhl', 'mlb',
+            'bun', 'fl1', 'ucl', 'mls', 'atp', 'wta', 'lal'.
+        limit: Max events (default: 30, max: 100).
+    """
+    return _get_todays_events(_req(sport=sport, limit=limit))
+
+
 def search_markets(
     *,
     query: str | None = None,
+    sport: str | None = None,
     sports_market_types: str | None = None,
     tag_id: int | None = None,
     limit: int = 20,
 ) -> dict:
-    """Find sports markets by keyword and filters."""
+    """Find sports markets by keyword, sport, or market type.
+
+    Args:
+        query: Keyword to match (e.g. 'Lakers', 'Leeds', 'Bayern').
+        sport: Sport code to filter by league (e.g. 'nba', 'epl', 'nfl').
+            Use get_sports_config() to see all available codes.
+        sports_market_types: Filter by type ('moneyline', 'spreads', 'totals').
+        tag_id: Tag ID (default: 1 = Sports).
+        limit: Max results (default: 20, max: 100).
+    """
     return _search_markets(
         _req(
             query=query,
+            sport=sport,
             sports_market_types=sports_market_types,
             tag_id=tag_id,
             limit=limit,

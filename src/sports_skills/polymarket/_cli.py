@@ -15,6 +15,8 @@ For trading commands, configure a wallet via one of:
     polymarket.configure(private_key="0x...")
 """
 
+from __future__ import annotations
+
 import functools
 import os
 

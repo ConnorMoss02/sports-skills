@@ -663,29 +663,233 @@ def get_sports_market_types(request_data):
 
 
 def search_markets(request_data):
-    """Find sports markets by browsing events and filtering.
+    """Find sports markets by keyword, sport, or market type.
 
-    The /search endpoint requires authentication. This function uses
-    the events and markets endpoints with filters for discovery instead.
+    Searches the /markets endpoint directly (returns single-game markets)
+    and optionally filters by sport (league series) via the /sports config.
 
     Params:
-        query (str): Keyword to match in event titles (optional)
-        sports_market_types (str): Filter by type (e.g. 'moneyline', 'spreads')
+        query (str): Keyword to match in market questions/slugs or event titles
+        sport (str): Sport code to filter by league (e.g. 'nba', 'epl', 'nfl',
+            'nhl', 'mlb', 'bun', 'fl1', 'sea', 'ucl', 'mls', 'atp', 'wta').
+            Resolves to the correct series_id automatically.
+        sports_market_types (str): Filter by type (e.g. 'moneyline', 'spreads', 'totals')
         tag_id (int): Tag ID (default: 1 = Sports)
-        limit (int): Max results (default: 20, max: 50)
+        limit (int): Max results (default: 20, max: 100)
     """
     try:
         params = request_data.get("params", {})
         query = params.get("query", "").lower()
-        limit = min(int(params.get("limit", 20)), 50)
+        sport = params.get("sport", "").lower()
+        limit = min(int(params.get("limit", 20)), 100)
+        smt = params.get("sports_market_types", "")
 
-        # Fetch sports events sorted by volume
+        # If sport is specified, resolve to series_id and search via events
+        series_id = params.get("series_id")
+        if sport and not series_id:
+            config = _get_sports_config()
+            series_id = config.get(sport, {}).get("series")
+
+        all_markets = []
+
+        # Strategy 1: If we have a series_id (from sport param), query events for that league
+        if series_id:
+            event_params = {
+                "series_id": series_id,
+                "limit": 100,
+                "active": "true",
+                "closed": "false",
+                "order": "startDate",
+                "ascending": "false",
+            }
+            response = _gamma_request("/events", params=event_params, ttl=60)
+            if not _check_error(response):
+                events = response if isinstance(response, list) else response.get("events", response)
+                if isinstance(events, list):
+                    for e in events:
+                        if query and not _text_match(query, e):
+                            continue
+                        markets = e.get("markets", [])
+                        if smt:
+                            markets = [m for m in markets if m.get("sportsMarketType", "") == smt]
+                        all_markets.extend([_normalize_market(m) for m in markets])
+
+        # Strategy 2: Query /markets directly (returns single-game markets by volume)
+        if len(all_markets) < limit:
+            market_params = {
+                "tag_id": params.get("tag_id", SPORTS_TAG_ID),
+                "limit": 100,
+                "active": "true",
+                "closed": "false",
+                "order": "volume",
+                "ascending": "false",
+            }
+            if smt:
+                market_params["sports_market_types"] = smt
+
+            response = _gamma_request("/markets", params=market_params, ttl=60)
+            if not _check_error(response):
+                markets = response if isinstance(response, list) else response.get("markets", response)
+                if isinstance(markets, list):
+                    seen_ids = {m["id"] for m in all_markets}
+                    for m in markets:
+                        if m.get("id", "") in seen_ids:
+                            continue
+                        if query and not _text_match_market(query, m):
+                            continue
+                        all_markets.append(_normalize_market(m))
+
+        # Strategy 3: If query provided but no sport, also search /events sorted by
+        # start date (descending) to find recent single-game events by name
+        if query and not series_id and len(all_markets) < limit:
+            event_params = {
+                "tag_id": params.get("tag_id", SPORTS_TAG_ID),
+                "limit": 100,
+                "active": "true",
+                "closed": "false",
+                "order": "startDate",
+                "ascending": "false",
+            }
+            response = _gamma_request("/events", params=event_params, ttl=60)
+            if not _check_error(response):
+                events = response if isinstance(response, list) else response.get("events", response)
+                if isinstance(events, list):
+                    seen_ids = {m["id"] for m in all_markets}
+                    for e in events:
+                        if not _text_match(query, e):
+                            continue
+                        markets = e.get("markets", [])
+                        if smt:
+                            markets = [m for m in markets if m.get("sportsMarketType", "") == smt]
+                        for m in markets:
+                            if m.get("id", "") not in seen_ids:
+                                all_markets.append(_normalize_market(m))
+                                seen_ids.add(m.get("id", ""))
+
+        return _success(
+            {
+                "markets": all_markets[:limit],
+                "count": len(all_markets[:limit]),
+                "query": query or "(all sports)",
+                "sport": sport or None,
+            },
+            f"Found {len(all_markets[:limit])} markets",
+        )
+
+    except Exception as e:
+        return _error(f"Error searching markets: {str(e)}")
+
+
+def _text_match(query, event):
+    """Check if query matches event title, description, or slug."""
+    q = query.lower()
+    return (
+        q in event.get("title", "").lower()
+        or q in event.get("description", "").lower()
+        or q in event.get("slug", "").lower()
+    )
+
+
+def _text_match_market(query, market):
+    """Check if query matches market question, slug, or parent event title."""
+    q = query.lower()
+    if q in market.get("question", "").lower() or q in market.get("slug", "").lower():
+        return True
+    return any(
+        q in e.get("title", "").lower() or q in e.get("slug", "").lower()
+        for e in market.get("events", [])
+    )
+
+
+def get_sports_config(request_data):
+    """Get available sports and their series IDs for filtering.
+
+    Returns a mapping of sport codes to their metadata (series_id, tags).
+    Use the sport code with search_markets(sport='nba') or get_todays_events(sport='epl').
+
+    No params required.
+    """
+    try:
+        config = _get_sports_config()
+        if not config:
+            return _error("Failed to fetch sports configuration")
+
+        sports = []
+        for code, info in sorted(config.items()):
+            sports.append({
+                "sport": code,
+                "series_id": info.get("series", ""),
+                "tags": info.get("tags", ""),
+            })
+
+        return _success(
+            {"sports": sports, "count": len(sports)},
+            f"Retrieved {len(sports)} sport configurations",
+        )
+
+    except Exception as e:
+        return _error(f"Error fetching sports config: {str(e)}")
+
+
+def _get_sports_config():
+    """Fetch and cache the /sports endpoint mapping sport→series."""
+    cache_key = "sports_config"
+    cached = _cache_get(cache_key)
+    if cached is not None:
+        return cached
+
+    response = _gamma_request("/sports", ttl=3600)
+    if isinstance(response, list):
+        config = {}
+        for s in response:
+            code = s.get("sport", "")
+            if code:
+                config[code] = {
+                    "series": s.get("series", ""),
+                    "tags": s.get("tags", ""),
+                    "ordering": s.get("ordering", ""),
+                }
+        _cache_set(cache_key, config, ttl=3600)
+        return config
+    return {}
+
+
+def get_todays_events(request_data):
+    """Get today's events (single-game markets) for a specific sport.
+
+    Returns events sorted by start date (most recent first) for the given
+    sport/league. Each event includes its nested markets with prices.
+
+    Params:
+        sport (str): Sport code (required) — e.g. 'nba', 'epl', 'nfl', 'nhl',
+            'mlb', 'bun', 'fl1', 'sea', 'ucl', 'mls', 'atp', 'wta', 'lal'.
+        limit (int): Max events (default: 30, max: 100)
+    """
+    try:
+        params = request_data.get("params", {})
+        sport = params.get("sport", "").lower()
+        limit = min(int(params.get("limit", 30)), 100)
+
+        if not sport:
+            return _error(
+                "sport is required. Use get_sports_config() to see available sport codes "
+                "(e.g. 'nba', 'epl', 'nfl', 'nhl', 'mlb', 'bun', 'fl1', 'ucl', 'mls')."
+            )
+
+        config = _get_sports_config()
+        series_id = config.get(sport, {}).get("series")
+        if not series_id:
+            available = ", ".join(sorted(config.keys()))
+            return _error(
+                f"Unknown sport '{sport}'. Available: {available}"
+            )
+
         event_params = {
-            "tag_id": params.get("tag_id", SPORTS_TAG_ID),
-            "limit": min(limit * 2, 100),
+            "series_id": series_id,
+            "limit": limit,
             "active": "true",
             "closed": "false",
-            "order": "volume",
+            "order": "startDate",
             "ascending": "false",
         }
 
@@ -694,42 +898,19 @@ def search_markets(request_data):
         if err:
             return err
 
-        events = (
-            response if isinstance(response, list) else response.get("events", response)
-        )
+        events = response if isinstance(response, list) else response.get("events", response)
         if not isinstance(events, list):
             events = []
 
-        # Filter by query keyword if provided
-        if query:
-            events = [
-                e
-                for e in events
-                if query in e.get("title", "").lower()
-                or query in e.get("description", "").lower()
-                or query in e.get("slug", "").lower()
-            ]
-
-        # Collect markets from matching events
-        all_markets = []
-        for e in events[:limit]:
-            markets = e.get("markets", [])
-            smt = params.get("sports_market_types", "")
-            if smt:
-                markets = [m for m in markets if m.get("sportsMarketType", "") == smt]
-            all_markets.extend([_normalize_market(m) for m in markets])
+        normalized = [_normalize_event(e) for e in events]
 
         return _success(
-            {
-                "markets": all_markets[:limit],
-                "count": len(all_markets[:limit]),
-                "query": query or "(all sports)",
-            },
-            f"Found {len(all_markets[:limit])} markets",
+            {"events": normalized, "count": len(normalized), "sport": sport},
+            f"Retrieved {len(normalized)} {sport.upper()} events",
         )
 
     except Exception as e:
-        return _error(f"Error searching markets: {str(e)}")
+        return _error(f"Error fetching today's events: {str(e)}")
 
 
 def get_price_history(request_data):

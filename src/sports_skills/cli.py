@@ -81,8 +81,13 @@ _REGISTRY = {
         "get_market_prices": {"optional": ["token_id", "token_ids"]},
         "get_order_book": {"required": ["token_id"]},
         "get_sports_market_types": {},
+        "get_sports_config": {},
+        "get_todays_events": {
+            "required": ["sport"],
+            "optional": ["limit"],
+        },
         "search_markets": {
-            "optional": ["query", "sports_market_types", "tag_id", "limit"]
+            "optional": ["query", "sport", "sports_market_types", "tag_id", "limit"]
         },
         "get_price_history": {
             "required": ["token_id"],
