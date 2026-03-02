@@ -65,7 +65,7 @@ def get_exchange_schedule() -> dict:
 
 
 def get_series_list(*, category: str | None = None, tags: str | None = None) -> dict:
-    """Get all available series (leagues, recurring event groups)."""
+    """Low-level series listing. For sport-specific markets, prefer get_todays_events(sport=...) or search_markets(sport=...) instead."""
     return _get_series_list(_req(category=category, tags=tags))
 
 
@@ -82,7 +82,7 @@ def get_events(
     series_ticker: str | None = None,
     with_nested_markets: bool = False,
 ) -> dict:
-    """Get events with optional filtering."""
+    """Low-level event listing. For sport-specific game markets, prefer get_todays_events(sport=...) which auto-filters by series ticker and includes nested markets."""
     return _get_events(
         _req(
             limit=limit,
@@ -110,7 +110,7 @@ def get_markets(
     status: str | None = None,
     tickers: str | None = None,
 ) -> dict:
-    """Get markets with optional filtering."""
+    """Low-level market listing. For sport-specific market search, prefer search_markets(sport=..., query=...) which auto-resolves series tickers and finds game-level markets."""
     return _get_markets(
         _req(
             limit=limit,
@@ -184,7 +184,10 @@ def get_sports_config() -> dict:
 
 
 def get_todays_events(*, sport: str, limit: int = 50) -> dict:
-    """Get today's events (single-game markets) for a specific sport.
+    """Primary tool for finding game-day prediction markets for a sport. Use this instead of get_events when a sport context is available.
+
+    Returns today's open events filtered by series ticker, with nested markets
+    included. Covers spread, moneyline, totals, and player-prop markets.
 
     Args:
         sport: Sport code — US sports: 'nba', 'nfl', 'nhl', 'mlb', 'wnba',
@@ -202,10 +205,10 @@ def search_markets(
     status: str = "open",
     limit: int = 50,
 ) -> dict:
-    """Search Kalshi markets. ALWAYS provide the sport code if known, otherwise Kalshi will only search top global events. Supports team mascots (e.g. Lakers).
+    """Primary tool for finding Kalshi markets by sport and keyword. Use this instead of get_markets when a sport context is available. Supports team mascots (e.g. Lakers).
 
-    IMPORTANT: For single-game markets, always pass sport (e.g. sport='epl').
-    Without it, search returns only high-volume futures and misses game markets.
+    Auto-resolves sport codes to the correct series tickers so you get
+    game-level markets (spread, totals, player props) — not just futures.
 
     Args:
         sport: Sport code — US sports: 'nba', 'nfl', 'nhl', 'mlb', 'wnba',

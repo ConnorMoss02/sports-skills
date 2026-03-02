@@ -26,10 +26,25 @@ from sports_skills._espn_base import (
     normalize_odds,
     normalize_transactions,
 )
+from sports_skills.nba import _cdn as nba_cdn
 
 logger = logging.getLogger("sports_skills.nba")
 
 SPORT_PATH = "basketball/nba"
+
+
+def _find_live_cdn_game(event_id):
+    """Return game_id if *event_id* matches a live game on today's CDN scoreboard."""
+    try:
+        sb = nba_cdn.get_live_scoreboard()
+        if not sb or sb.get("error"):
+            return None
+        for g in sb.get("games", []):
+            if g.get("id") == event_id and g.get("status") == "live":
+                return g["id"]
+    except Exception:
+        pass
+    return None
 
 
 # ============================================================
@@ -396,6 +411,16 @@ def get_scoreboard(request_data):
     params = request_data.get("params", {})
     date = params.get("date")
 
+    # For today's games, prefer CDN (faster refresh for live data).
+    if not date:
+        try:
+            cdn = nba_cdn.get_live_scoreboard()
+            if cdn and not cdn.get("error") and cdn.get("games"):
+                return cdn
+        except Exception:
+            pass
+
+    # ESPN fallback (or explicit date query).
     espn_params = {}
     if date:
         espn_params["dates"] = date.replace("-", "")
@@ -514,6 +539,17 @@ def get_game_summary(request_data):
     if not event_id:
         return {"error": True, "message": "event_id is required"}
 
+    # If the game is live on CDN, prefer CDN boxscore (15s TTL vs 300s).
+    game_id = _find_live_cdn_game(event_id)
+    if game_id:
+        try:
+            result = nba_cdn.get_live_boxscore({"params": {"game_id": game_id}})
+            if result and not result.get("error") and result.get("game_info"):
+                return result
+        except Exception:
+            pass
+
+    # ESPN fallback.
     data = espn_summary(SPORT_PATH, event_id)
     if not data:
         return {"error": True, "message": f"No summary data found for event {event_id}"}
@@ -663,6 +699,17 @@ def get_play_by_play(request_data):
     if not event_id:
         return {"error": True, "message": "event_id is required"}
 
+    # If the game is live on CDN, prefer CDN play-by-play (15s TTL vs 300s).
+    game_id = _find_live_cdn_game(event_id)
+    if game_id:
+        try:
+            result = nba_cdn.get_live_playbyplay({"params": {"game_id": game_id}})
+            if result and not result.get("error") and result.get("actions"):
+                return result
+        except Exception:
+            pass
+
+    # ESPN fallback.
     data = espn_summary(SPORT_PATH, event_id)
     if not data:
         return {"error": True, "message": f"No data found for event {event_id}"}
