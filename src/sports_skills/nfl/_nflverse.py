@@ -263,7 +263,13 @@ def _load_provider():
                 "Repair or reinstall it."
             ) from exc
         args = [sys.executable, "-m", "pip", "install", "sports-skills[nfl]"]
-        if sys.platform == "win32":
+        if sys.platform == "win32" and any(c in sys.executable for c in '&%^!|<>"()\r\n'):
+            # list2cmdline is not cmd.exe escaping; don't offer a command it would misparse.
+            hint = (
+                f"Activate the environment of the running interpreter ({sys.executable}) "
+                "and install the sports-skills[nfl] extra with its package manager."
+            )
+        elif sys.platform == "win32":
             hint = f"Install from cmd.exe with: {subprocess.list2cmdline(args)}"
         else:
             hint = f"Install with: {shlex.join(args)}"

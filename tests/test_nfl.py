@@ -317,6 +317,38 @@ class TestLoadProvider:
         assert "cmd.exe" in message
         assert '"C:\\Program Files\\Python312\\python.exe" -m pip install sports-skills[nfl]' in message
 
+    @pytest.mark.parametrize(
+        "exe",
+        [
+            r"C:\Python&Tools\python.exe",
+            r"C:\%TOOLS%\python.exe",
+            r"C:\Py^thon\python.exe",
+            r"C:\Py!thon\python.exe",
+            r"C:\Py|thon\python.exe",
+            r"C:\Py<thon\python.exe",
+            r"C:\Py>thon\python.exe",
+            'C:\\Py"thon\\python.exe',
+            r"C:\Py(thon)\python.exe",
+            r"C:\Program Files (x86)\Python312\python.exe",
+        ],
+    )
+    def test_windows_unsafe_interpreter_path_gets_no_command(self, monkeypatch, exe):
+        """list2cmdline is not cmd.exe escaping; a metacharacter path must not yield a runnable command."""
+        self._hide(monkeypatch, "nflreadpy", "nfl_data_py")
+        with monkeypatch.context() as m:
+            m.setattr(sys, "platform", "win32")
+            m.setattr(sys, "executable", exe)
+            with pytest.raises(ImportError) as excinfo:
+                _nflverse._load_provider()
+        message = str(excinfo.value)
+        assert "nflreadpy" in message and "nfl_data_py" in message
+        assert exe in message
+        assert "-m pip install" not in message
+        lowered = message.lower()
+        assert "activate" in lowered
+        assert "package manager" in lowered
+        assert "sports-skills[nfl]" in message
+
     _BROKEN = [
         pytest.param(
             lambda: ModuleNotFoundError("No module named 'polars'", name="polars"),
