@@ -5,6 +5,7 @@ with representative rows.
 """
 
 import builtins
+import shlex
 import sys
 import types
 
@@ -257,16 +258,24 @@ class TestLoadProvider:
         return types.ModuleType(name)
 
     @staticmethod
-    def _hide(monkeypatch, *names):
-        """Make `import <name>` fail for the given modules."""
+    def _fail_import(monkeypatch, failures):
+        """Make `import <name>` raise ``failures[name]`` for the given modules."""
         real_import = builtins.__import__
 
         def fake_import(name, *args, **kwargs):
-            if name in names:
-                raise ImportError(f"{name} absent")
+            if name in failures:
+                raise failures[name]
             return real_import(name, *args, **kwargs)
 
         monkeypatch.setattr(builtins, "__import__", fake_import)
+
+    @classmethod
+    def _hide(cls, monkeypatch, *names):
+        """Make the given modules genuinely absent, as Python reports it."""
+        cls._fail_import(
+            monkeypatch,
+            {name: ModuleNotFoundError(f"No module named {name!r}", name=name) for name in names},
+        )
 
     def test_prefers_nflreadpy(self, monkeypatch):
         monkeypatch.setitem(sys.modules, "nflreadpy", self._fake("nflreadpy"))
@@ -284,6 +293,116 @@ class TestLoadProvider:
         self._hide(monkeypatch, "nflreadpy", "nfl_data_py")
         with pytest.raises(ImportError, match=r"sports-skills\[nfl\]"):
             _nflverse._load_provider()
+
+    @pytest.mark.skipif(sys.platform == "win32", reason="POSIX shell quoting")
+    def test_install_hint_targets_the_running_interpreter(self, monkeypatch):
+        """The hint must install into this Python, quoted for a path with spaces."""
+        exe = "/opt/My Python/bin/python3"
+        monkeypatch.setattr(sys, "executable", exe)
+        self._hide(monkeypatch, "nflreadpy", "nfl_data_py")
+        with pytest.raises(ImportError) as excinfo:
+            _nflverse._load_provider()
+        expected = f"{shlex.quote(exe)} -m pip install {shlex.quote('sports-skills[nfl]')}"
+        assert expected in str(excinfo.value)
+
+    def test_windows_install_hint_is_labelled_for_cmd(self, monkeypatch):
+        """On Windows the hint is cmd.exe syntax, and says so."""
+        self._hide(monkeypatch, "nflreadpy", "nfl_data_py")
+        with monkeypatch.context() as m:
+            m.setattr(sys, "platform", "win32")
+            m.setattr(sys, "executable", r"C:\Program Files\Python312\python.exe")
+            with pytest.raises(ImportError) as excinfo:
+                _nflverse._load_provider()
+        message = str(excinfo.value)
+        assert "cmd.exe" in message
+        assert '"C:\\Program Files\\Python312\\python.exe" -m pip install sports-skills[nfl]' in message
+
+    @pytest.mark.parametrize(
+        "exe",
+        [
+            r"C:\Python&Tools\python.exe",
+            r"C:\%TOOLS%\python.exe",
+            r"C:\Py^thon\python.exe",
+            r"C:\Py!thon\python.exe",
+            r"C:\Py|thon\python.exe",
+            r"C:\Py<thon\python.exe",
+            r"C:\Py>thon\python.exe",
+            'C:\\Py"thon\\python.exe',
+            r"C:\Py(thon)\python.exe",
+            r"C:\Program Files (x86)\Python312\python.exe",
+        ],
+    )
+    def test_windows_unsafe_interpreter_path_gets_no_command(self, monkeypatch, exe):
+        """list2cmdline is not cmd.exe escaping; a metacharacter path must not yield a runnable command."""
+        self._hide(monkeypatch, "nflreadpy", "nfl_data_py")
+        with monkeypatch.context() as m:
+            m.setattr(sys, "platform", "win32")
+            m.setattr(sys, "executable", exe)
+            with pytest.raises(ImportError) as excinfo:
+                _nflverse._load_provider()
+        message = str(excinfo.value)
+        assert "nflreadpy" in message and "nfl_data_py" in message
+        assert exe in message
+        assert "-m pip install" not in message
+        lowered = message.lower()
+        assert "activate" in lowered
+        assert "package manager" in lowered
+        assert "sports-skills[nfl]" in message
+
+    _BROKEN = [
+        pytest.param(
+            lambda: ModuleNotFoundError("No module named 'polars'", name="polars"),
+            id="nested-module-missing",
+        ),
+        pytest.param(
+            lambda: ImportError("cannot import name 'load_pbp' from partially initialized module"),
+            id="generic-import-error",
+        ),
+    ]
+
+    @pytest.mark.parametrize("make_exc", _BROKEN)
+    def test_broken_nflreadpy_is_reported_not_hidden_by_fallback(self, monkeypatch, make_exc):
+        """An installed-but-broken nflreadpy must not silently switch backends."""
+        exc = make_exc()
+        monkeypatch.setitem(sys.modules, "nfl_data_py", self._fake("nfl_data_py"))
+        self._fail_import(monkeypatch, {"nflreadpy": exc})
+        with pytest.raises(ImportError) as excinfo:
+            _nflverse._load_provider()
+        message = str(excinfo.value)
+        assert "nflreadpy" in message
+        assert type(exc).__name__ in message
+        assert str(exc) in message
+        assert excinfo.value.__cause__ is exc
+
+    @pytest.mark.parametrize("make_exc", _BROKEN)
+    def test_broken_nfl_data_py_is_reported_as_broken(self, monkeypatch, make_exc):
+        exc = make_exc()
+        self._fail_import(
+            monkeypatch,
+            {
+                "nflreadpy": ModuleNotFoundError("No module named 'nflreadpy'", name="nflreadpy"),
+                "nfl_data_py": exc,
+            },
+        )
+        with pytest.raises(ImportError) as excinfo:
+            _nflverse._load_provider()
+        message = str(excinfo.value)
+        assert "nfl_data_py" in message
+        assert type(exc).__name__ in message
+        assert str(exc) in message
+        assert excinfo.value.__cause__ is exc
+
+    def test_broken_provider_reaches_the_agent_as_data(self, monkeypatch):
+        monkeypatch.setitem(sys.modules, "nfl_data_py", self._fake("nfl_data_py"))
+        self._fail_import(
+            monkeypatch,
+            {"nflreadpy": ModuleNotFoundError("No module named 'polars'", name="polars")},
+        )
+        result = _nflverse.get_nflverse_schedule({"params": {"season": 2024}})
+        assert result["error"] is True
+        assert "nflreadpy" in result["message"]
+        assert "ModuleNotFoundError" in result["message"]
+        assert "polars" in result["message"]
 
 
 def test_scoreboard_week_of_a_past_season(monkeypatch):

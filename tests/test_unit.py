@@ -1579,7 +1579,7 @@ class TestNFLverseOptionalDependency:
 
         def fake_import(name, *args, **kwargs):
             if name in {"nflreadpy", "nfl_data_py"}:
-                raise ImportError(name)
+                raise ModuleNotFoundError(f"No module named {name!r}", name=name)
             return real_import(name, *args, **kwargs)
 
         monkeypatch.setattr(builtins, "__import__", fake_import)
