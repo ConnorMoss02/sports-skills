@@ -10,6 +10,9 @@ from __future__ import annotations
 import functools
 import inspect
 import logging
+import shlex
+import subprocess
+import sys
 from collections.abc import Mapping, Sequence
 from datetime import datetime
 from typing import Any
@@ -236,20 +239,36 @@ def _load_with_season_fallback(loader, season: int, explicit: bool):
 
 
 def _load_provider():
+    # Only a provider that is itself absent falls through. One that is installed
+    # but fails on a nested import is reported, not hidden behind the fallback.
     try:
         import nflreadpy as provider  # type: ignore
 
         return "nflreadpy", provider
-    except ImportError:
-        pass
+    except ImportError as exc:
+        if not (isinstance(exc, ModuleNotFoundError) and exc.name == "nflreadpy"):
+            raise ImportError(
+                f"nflreadpy is installed but failed to import ({type(exc).__name__}: {exc}). "
+                "Repair or reinstall it; the nfl_data_py fallback is not used while nflreadpy is broken."
+            ) from exc
 
     try:
         import nfl_data_py as provider  # type: ignore
 
         return "nfl_data_py", provider
     except ImportError as exc:
+        if not (isinstance(exc, ModuleNotFoundError) and exc.name == "nfl_data_py"):
+            raise ImportError(
+                f"nfl_data_py is installed but failed to import ({type(exc).__name__}: {exc}). "
+                "Repair or reinstall it."
+            ) from exc
+        args = [sys.executable, "-m", "pip", "install", "sports-skills[nfl]"]
+        if sys.platform == "win32":
+            hint = f"Install from cmd.exe with: {subprocess.list2cmdline(args)}"
+        else:
+            hint = f"Install with: {shlex.join(args)}"
         raise ImportError(
-            "NFLverse backend dependencies are unavailable. Install with: pip install sports-skills[nfl]"
+            f"NFLverse backend is not installed (neither nflreadpy nor nfl_data_py found). {hint}"
         ) from exc
 
 
