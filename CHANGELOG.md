@@ -1,3 +1,8 @@
+## [0.37.1]
+
+### Fixed
+- **nfl: broken NFLverse providers are reported, not hidden.** An installed `nflreadpy` or `nfl_data_py` that fails on a nested import now returns an error naming the provider and the import failure instead of falling through to the other backend or claiming nothing is installed. The `nfl_data_py` fallback is used only when `nflreadpy` itself is genuinely absent. The missing-backend message gives an install command for the running interpreter (`<python> -m pip install sports-skills[nfl]`), quoted for the platform's shell.
+
 ## [0.37.0]
 
 ### Added
