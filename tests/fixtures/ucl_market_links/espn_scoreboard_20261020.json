@@ -1,0 +1,114 @@
+{
+  "events": [
+    {
+      "id": "401915403",
+      "uid": "s:600~l:775~e:401915403",
+      "date": "2026-10-20T16:45Z",
+      "name": "Slavia Prague at Fenerbahce",
+      "shortName": "SLP @ FEN",
+      "competitions": [
+        {
+          "id": "401915403",
+          "date": "2026-10-20T16:45Z",
+          "startDate": "2026-10-20T16:45Z",
+          "status": {"type": {"id": "1", "name": "STATUS_SCHEDULED", "state": "pre", "completed": false}},
+          "competitors": [
+            {
+              "id": "436",
+              "homeAway": "home",
+              "team": {
+                "id": "436",
+                "abbreviation": "FEN",
+                "displayName": "Fenerbahce",
+                "shortDisplayName": "Fenerbahce",
+                "name": "Fenerbahce",
+                "location": "Fenerbahce"
+              }
+            },
+            {
+              "id": "494",
+              "homeAway": "away",
+              "team": {
+                "id": "494",
+                "abbreviation": "SLP",
+                "displayName": "Slavia Prague",
+                "shortDisplayName": "Slavia Prague",
+                "name": "Slavia Prague",
+                "location": "Slavia Prague"
+              }
+            }
+          ],
+          "odds": [
+            {
+              "provider": {"id": "100", "name": "DraftKings", "priority": 1},
+              "details": "FEN -150",
+              "overUnder": 2.5,
+              "drawOdds": {"moneyLine": 310},
+              "moneyline": {
+                "home": {"open": {"odds": "-155"}, "close": {"odds": "-150"}},
+                "away": {"open": {"odds": "+400"}, "close": {"odds": "+370"}},
+                "draw": {"open": {"odds": "+310"}, "close": {"odds": "+310"}}
+              }
+            }
+          ]
+        }
+      ],
+      "status": {"type": {"id": "1", "name": "STATUS_SCHEDULED", "state": "pre", "completed": false}}
+    },
+    {
+      "id": "401915399",
+      "uid": "s:600~l:775~e:401915399",
+      "date": "2026-10-20T19:00Z",
+      "name": "Barcelona at Paris Saint-Germain",
+      "shortName": "BAR @ PSG",
+      "competitions": [
+        {
+          "id": "401915399",
+          "date": "2026-10-20T19:00Z",
+          "startDate": "2026-10-20T19:00Z",
+          "status": {"type": {"id": "1", "name": "STATUS_SCHEDULED", "state": "pre", "completed": false}},
+          "competitors": [
+            {
+              "id": "160",
+              "homeAway": "home",
+              "team": {
+                "id": "160",
+                "abbreviation": "PSG",
+                "displayName": "Paris Saint-Germain",
+                "shortDisplayName": "PSG",
+                "name": "Paris Saint-Germain",
+                "location": "Paris Saint-Germain"
+              }
+            },
+            {
+              "id": "83",
+              "homeAway": "away",
+              "team": {
+                "id": "83",
+                "abbreviation": "BAR",
+                "displayName": "Barcelona",
+                "shortDisplayName": "Barcelona",
+                "name": "Barcelona",
+                "location": "Barcelona"
+              }
+            }
+          ],
+          "odds": [
+            {
+              "provider": {"id": "100", "name": "DraftKings", "priority": 1},
+              "details": "PSG +135",
+              "overUnder": 4.5,
+              "drawOdds": {"moneyLine": 340},
+              "moneyline": {
+                "home": {"open": {"odds": "+135"}, "close": {"odds": "+135"}},
+                "away": {"open": {"odds": "+145"}, "close": {"odds": "+145"}},
+                "draw": {"open": {"odds": "+340"}, "close": {"odds": "+340"}}
+              }
+            }
+          ]
+        }
+      ],
+      "status": {"type": {"id": "1", "name": "STATUS_SCHEDULED", "state": "pre", "completed": false}}
+    }
+  ]
+}

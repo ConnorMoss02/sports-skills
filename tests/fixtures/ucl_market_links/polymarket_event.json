@@ -1,0 +1,110 @@
+{
+  "status": true,
+  "data": {
+    "id": "1149399",
+    "title": "Paris Saint-Germain FC vs. FC Barcelona",
+    "description": "This event is for the upcoming UEFA Champions League game, scheduled for Tuesday, October 20, 2026 between Paris Saint-Germain FC and FC Barcelona.",
+    "slug": "ucl-psg-fcb-2026-10-20",
+    "status": "active",
+    "start_date": "2026-10-07T18:01:18Z",
+    "end_date": "2026-10-20T19:00:00Z",
+    "created_at": "2026-10-07T18:01:07.688438Z",
+    "updated_at": "2026-10-16T18:47:04.984344Z",
+    "market_count": 3,
+    "markets": [
+      {
+        "id": "5409678",
+        "question": "Will Paris Saint-Germain FC win on 2026-10-20?",
+        "description": "In the upcoming game, scheduled for October 20, 2026\nIf Paris Saint-Germain FC wins, this market will resolve to \"Yes\".\nOtherwise, this market will resolve to \"No\".\nIf the game is postponed, this market will remain open until the game has been completed.\nIf the game is canceled entirely, with no make-up game, this market will resolve \"No\".\nThis market refers only to the outcome within the first 90 minutes of regular play plus stoppage time.\n\nThe primary resolution source for this market is the official statistics of the event as recognized by the governing body or event organizers. However, if the governing body or event organizers have not published final match statistics within 2 hours after the event's conclusion, data from Flashscore may be used; if Flashscore data is unavailable, data from Sofascore may be used; if neither is available, a consensus of credible reporting may be used instead. All markets will settle based on the official final result as recognized by the governing body or event organizers. Revisions to officially declared final scores made after market resolution will not be accounted for in determining the outcome. If no acceptable data is available within 24 hours of the event's conclusion, this market will resolve 50-50, or to \"Draw\" where applicable.",
+        "slug": "ucl-psg-fcb-2026-10-20-psg",
+        "status": "active",
+        "outcomes": [
+          {
+            "name": "Yes",
+            "price": 0.395,
+            "clob_token_id": "26770595787602001462130355491642361938223218040760514066563322814696934151767"
+          },
+          {
+            "name": "No",
+            "price": 0.605,
+            "clob_token_id": "26045686319218829321581640737757673133336920566321667783134183584107430277783"
+          }
+        ],
+        "spread": 0.01,
+        "end_date": "2026-10-20T19:00:00Z",
+        "created_at": "2026-10-07T18:01:08.127127Z",
+        "updated_at": "2026-10-16T18:46:52.63624Z",
+        "event_id": "",
+        "sports_market_type": "moneyline",
+        "game_id": "",
+        "clob_token_ids": [
+          "26770595787602001462130355491642361938223218040760514066563322814696934151767",
+          "26045686319218829321581640737757673133336920566321667783134183584107430277783"
+        ]
+      },
+      {
+        "id": "5409679",
+        "question": "Will Paris Saint-Germain FC vs. FC Barcelona end in a draw?",
+        "description": "In the upcoming game, scheduled for October 20, 2026\nIf the game ends in a draw, this market will resolve to \"Yes\".\nOtherwise, this market will resolve to \"No\".\nIf the game is postponed, this market will remain open until the game has been completed.\nIf the game is canceled entirely, with no make-up game, this market will resolve to \"Yes\".\nThis market refers only to the outcome within the first 90 minutes of regular play plus stoppage time.\n\nThe primary resolution source for this market is the official statistics of the event as recognized by the governing body or event organizers. However, if the governing body or event organizers have not published final match statistics within 2 hours after the event's conclusion, data from Flashscore may be used; if Flashscore data is unavailable, data from Sofascore may be used; if neither is available, a consensus of credible reporting may be used instead. All markets will settle based on the official final result as recognized by the governing body or event organizers. Revisions to officially declared final scores made after market resolution will not be accounted for in determining the outcome. If no acceptable data is available within 24 hours of the event's conclusion, this market will resolve 50-50, or to \"Draw\" where applicable.",
+        "slug": "ucl-psg-fcb-2026-10-20-draw",
+        "status": "active",
+        "outcomes": [
+          {
+            "name": "Yes",
+            "price": 0.215,
+            "clob_token_id": "67663514218312333544563894318029407264693493524344306629077712685778694931883"
+          },
+          {
+            "name": "No",
+            "price": 0.785,
+            "clob_token_id": "37160298356593045543018348270808027677001790004247935205726887092372577964258"
+          }
+        ],
+        "spread": 0.01,
+        "end_date": "2026-10-20T19:00:00Z",
+        "created_at": "2026-10-07T18:01:08.284186Z",
+        "updated_at": "2026-10-16T18:24:52.578576Z",
+        "event_id": "",
+        "sports_market_type": "moneyline",
+        "game_id": "",
+        "clob_token_ids": [
+          "67663514218312333544563894318029407264693493524344306629077712685778694931883",
+          "37160298356593045543018348270808027677001790004247935205726887092372577964258"
+        ]
+      },
+      {
+        "id": "5409680",
+        "question": "Will FC Barcelona win on 2026-10-20?",
+        "description": "In the upcoming game, scheduled for October 20, 2026\nIf FC Barcelona wins, this market will resolve to \"Yes\".\nOtherwise, this market will resolve to \"No\".\nIf the game is postponed, this market will remain open until the game has been completed.\nIf the game is canceled entirely, with no make-up game, this market will resolve \"No\".\nThis market refers only to the outcome within the first 90 minutes of regular play plus stoppage time.\n\nThe primary resolution source for this market is the official statistics of the event as recognized by the governing body or event organizers. However, if the governing body or event organizers have not published final match statistics within 2 hours after the event's conclusion, data from Flashscore may be used; if Flashscore data is unavailable, data from Sofascore may be used; if neither is available, a consensus of credible reporting may be used instead. All markets will settle based on the official final result as recognized by the governing body or event organizers. Revisions to officially declared final scores made after market resolution will not be accounted for in determining the outcome. If no acceptable data is available within 24 hours of the event's conclusion, this market will resolve 50-50, or to \"Draw\" where applicable.",
+        "slug": "ucl-psg-fcb-2026-10-20-fcb",
+        "status": "active",
+        "outcomes": [
+          {
+            "name": "Yes",
+            "price": 0.395,
+            "clob_token_id": "31682511723608770150053064810802010400448330082929879191712653876010261915911"
+          },
+          {
+            "name": "No",
+            "price": 0.605,
+            "clob_token_id": "35772838963935585792839997134197060501925727691916538220111436124788169722819"
+          }
+        ],
+        "spread": 0.01,
+        "end_date": "2026-10-20T19:00:00Z",
+        "created_at": "2026-10-07T18:01:08.452559Z",
+        "updated_at": "2026-10-16T18:46:52.63624Z",
+        "event_id": "",
+        "sports_market_type": "moneyline",
+        "game_id": "",
+        "clob_token_ids": [
+          "31682511723608770150053064810802010400448330082929879191712653876010261915911",
+          "35772838963935585792839997134197060501925727691916538220111436124788169722819"
+        ]
+      }
+    ],
+    "tags": ["Sports", "Games", "Soccer", "UCL"],
+    "series_id": ""
+  },
+  "message": "Retrieved event: Paris Saint-Germain FC vs. FC Barcelona"
+}

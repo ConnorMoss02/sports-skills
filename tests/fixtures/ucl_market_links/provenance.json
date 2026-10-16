@@ -1,0 +1,15 @@
+{
+  "retrieved_at": "2026-10-16T18:54:01.102779+00:00",
+  "sdk_version": "0.37.1",
+  "sources": {
+    "polymarket_event.json": "sports_skills.polymarket.get_event_details(slug='ucl-psg-fcb-2026-10-20')",
+    "kalshi_event.json": "sports_skills.kalshi.get_event(event_ticker='KXUCLGAME-26OCT20PSGBAR', with_nested_markets=True)",
+    "espn_scoreboard_20261020.json": "https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard?dates=20261020&limit=1000"
+  },
+  "trimming": [
+    "Every kept value is byte-identical to the capture; only keys (and, for ESPN, whole events) were removed.",
+    "Polymarket: event volume/liquidity/competitive and per-market volume/volume_24h/liquidity/competitive/start_date/tags dropped. Event and market descriptions are kept in full, including the resolution-source paragraph.",
+    "Kalshi: per-market custom_strike, price_ranges, rules_secondary, open-interest/volume, expiration and settlement-timer fields dropped; event settlement_sources and collateral fields dropped.",
+    "ESPN: leagues/calendar, links, logos, venues, broadcasts, records, leaders and non-moneyline odds dropped; 2 of 9 events kept (401915399 PSG v Barcelona, plus 401915403 Fenerbahce v Slavia Prague as a same-day decoy)."
+  ]
+}

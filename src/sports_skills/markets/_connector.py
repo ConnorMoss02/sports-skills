@@ -1668,6 +1668,9 @@ _URL_SEGMENT_RE = re.compile(r"^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$")
 # different contract, so it is refused rather than silently dropped.
 _URL_TRACKING_KEYS = {"tid", "ref", "referrer", "via", "fbclid", "gclid"}
 
+# The one football league compare_market_url resolves (three-way, see _ucl.py).
+_UCL = "ucl"
+
 _URL_SCOPE_NOTE = (
     "Link resolution maps the source to the same game's full-game moneyline only; "
     "venues may settle ties, postponements and overtime differently."
@@ -1692,7 +1695,8 @@ def _parse_market_url(url) -> tuple[dict | None, str]:
     from urllib.parse import parse_qsl, urlsplit
 
     unsupported = (
-        "Unsupported URL: paste https://polymarket.com/event/<slug> or "
+        "Unsupported URL: paste https://polymarket.com/event/<slug>, "
+        "https://polymarket.com/sports/ucl/<slug> or "
         "https://kalshi.com/markets/<series>/<slug>/<event-ticker> (no credentials or ports)"
     )
     if not isinstance(url, str) or not url.strip() or len(url) > 512:
@@ -1721,11 +1725,36 @@ def _parse_market_url(url) -> tuple[dict | None, str]:
         return None, f"Malformed URL path '{parts.path}'"
 
     if venue == "polymarket":
-        if segments[0] != "event" or len(segments) not in (2, 3):
+        if segments[0] == "sports" and len(segments) == 3:
+            # /sports/<league>/<slug>: only UCL, and the slug must be of that league.
+            if segments[1] != _UCL or segments[2].split("-", 1)[0] != _UCL:
+                return None, (
+                    f"Unsupported Polymarket sports link '{parts.path}': only "
+                    f"/sports/{_UCL}/{_UCL}-<home>-<away>-<date> game links are supported"
+                )
+        elif segments[0] != "event" or len(segments) not in (2, 3):
             return None, unsupported
-        event_slug = segments[1]
+        event_slug = segments[1] if segments[0] == "event" else segments[2]
         match = _POLY_FULL_GAME_SLUG_RE.match(event_slug)
         league = event_slug.split("-", 1)[0]
+        if league == _UCL:
+            # A UCL game is three contracts; a link to one of them is not the game.
+            if not match or len(segments) != (2 if segments[0] == "event" else 3):
+                return None, (
+                    f"Unsupported Polymarket UCL link '{parts.path}': paste the game link "
+                    f"(/sports/{_UCL}/<slug> or /event/<slug>, slug {_UCL}-<home>-<away>-<date>)"
+                )
+            if not _url_date_ok(match.group(1)):
+                return None, f"Polymarket event '{event_slug}' carries an invalid date '{match.group(1)}'"
+            route = f"sports/{_UCL}" if segments[0] == "sports" else "event"
+            return {
+                "venue": venue,
+                "sport": _UCL,
+                "date": match.group(1),
+                "url": f"https://polymarket.com/{route}/{event_slug}",
+                "event_slug": event_slug,
+                "market_slug": "",
+            }, ""
         sport = next((s for s in sorted(SCOREBOARD_SPORTS) if POLYMARKET_SPORTS.get(s) == league), None)
         if not match or sport is None:
             return None, (
@@ -1751,11 +1780,13 @@ def _parse_market_url(url) -> tuple[dict | None, str]:
     if "-" not in ticker or ticker.split("-", 1)[0] != series:
         return None, f"Kalshi event ticker '{ticker}' does not belong to series '{series}'"
     sport = next((s for s in sorted(SCOREBOARD_SPORTS) if f"{KALSHI_SERIES[s]}GAME" == series), None)
+    if series == f"{KALSHI_SERIES[_UCL]}GAME":
+        sport = _UCL
     date, _pair = _kalshi_event_date_pair(ticker.split("-", 1)[1])
     if sport is None or not date:
         return None, (
             f"Unsupported Kalshi series '{series}' / ticker '{ticker}': only dated game-winner events of "
-            f"{', '.join(sorted(SCOREBOARD_SPORTS))} are supported"
+            f"{', '.join(sorted(SCOREBOARD_SPORTS | {_UCL}))} are supported"
         )
     if not _url_date_ok(date):
         return None, f"Kalshi event ticker '{ticker}' carries an invalid date '{date}'"
@@ -1974,14 +2005,22 @@ def compare_market_url(request_data: dict) -> dict:
     The URL itself is never fetched: only validated identifiers reach the
     fixed-host venue adapters, and the venue's own metadata decides the game.
 
+    UEFA Champions League links (Polymarket ucl-*, Kalshi KXUCLGAME) resolve
+    instead to a three-way home/draw/away comparison — see ``_ucl.py``.
+
     Params:
-        url (str): https://polymarket.com/event/<slug>[/<market-slug>] or
+        url (str): https://polymarket.com/event/<slug>[/<market-slug>],
+            https://polymarket.com/sports/ucl/<slug> or
             https://kalshi.com/markets/<series>/<slug>/<event-ticker>.
     """
     params = request_data.get("params", {})
     ref, reason = _parse_market_url(params.get("url"))
     if ref is None:
         return _error(reason)
+    if ref["sport"] == _UCL:
+        from sports_skills.markets._ucl import compare_ucl_url
+
+        return compare_ucl_url(ref)
 
     resolve = _resolve_poly_source if ref["venue"] == "polymarket" else _resolve_kalshi_source
     source, check, reason = resolve(ref)
