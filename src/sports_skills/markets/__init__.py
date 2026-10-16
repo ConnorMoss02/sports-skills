@@ -105,8 +105,14 @@ def compare_market_url(*, url: str) -> dict:
     ProphetX, Novig). ``source_market`` carries the resolved source and
     ``in_downstream_search``. Same-game moneyline only, no settlement equivalence.
 
+    UEFA Champions League links (polymarket.com/sports/ucl/<slug>,
+    /event/ucl-<slug>, Kalshi KXUCLGAME) return a three-way comparison instead:
+    ``side_prices`` for home, draw and away from both venues' regulation-time
+    (90' + stoppage) contracts, ``market_type="three_way_moneyline"``,
+    reference prices only and no arbitrage check.
+
     Args:
-        url: https://polymarket.com/event/<slug>[/<market-slug>] or https://kalshi.com/markets/<series>/<slug>/<event-ticker>.
+        url: https://polymarket.com/event/<slug>[/<market-slug>], https://polymarket.com/sports/ucl/<slug> or https://kalshi.com/markets/<series>/<slug>/<event-ticker>.
     """
     return _compare_market_url(_req(url=url))
 

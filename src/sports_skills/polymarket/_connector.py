@@ -894,9 +894,13 @@ def get_todays_events(request_data):
             'mlb', 'bun', 'fl1', 'sea', 'ucl', 'mls', 'atp', 'wta', 'lal'.
         limit (int): Max events (default: 50, max: 100). Increase to 100 for
             leagues with many concurrent matches.
+        offset (int): Events to skip, for paging past a full page (default: 0).
     """
     try:
         params = request_data.get("params", {})
+        offset = params.get("offset", 0)
+        if isinstance(offset, bool) or not isinstance(offset, int) or offset < 0:
+            return _error(f"offset must be a non-negative integer, got {offset!r}")
         sport = str(params.get("sport") or "").lower()
         limit = min(int(params.get("limit", 50)), 100)
 
@@ -924,6 +928,8 @@ def get_todays_events(request_data):
             "order": "volume",
             "ascending": "false",
         }
+        if offset:
+            event_params["offset"] = offset
 
         response = _gamma_request("/events", params=event_params, ttl=60)
         err = _check_error(response)

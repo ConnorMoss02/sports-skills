@@ -222,15 +222,16 @@ def get_sports_config() -> dict:
     return _get_sports_config(_req())
 
 
-def get_todays_events(*, sport: str, limit: int = 30) -> dict:
+def get_todays_events(*, sport: str, limit: int = 30, offset: int = 0) -> dict:
     """Get today's events (single-game markets) for a specific sport.
 
     Args:
         sport: Sport code — e.g. 'nba', 'epl', 'nfl', 'nhl', 'mlb',
             'bun', 'fl1', 'ucl', 'mls', 'atp', 'wta', 'lal'.
         limit: Max events (default: 30, max: 100).
+        offset: Events to skip, to page past a full result (default: 0).
     """
-    return _get_todays_events(_req(sport=sport, limit=limit))
+    return _get_todays_events(_req(sport=sport, limit=limit, offset=offset))
 
 
 def search_markets(
