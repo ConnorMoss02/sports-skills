@@ -1,3 +1,9 @@
+## [0.37.2]
+
+### Fixed
+- **markets: UCL game links.** Resolve Polymarket sports/event URLs and Kalshi `KXUCLGAME` URLs to the exact ESPN fixture. Preserve home, draw and away reference prices with explicit regulation-time settlement. Reject mismatched rules and duplicate contract identities. Report missing prices and incomplete searches as partial coverage.
+- **polymarket: bounded UCL discovery pagination.** Add an optional validated `offset` to `get_todays_events` and complete bounded counterpart discovery before declaring a unique match. Prices remain non-executable references, not settlement-equivalence or arbitrage claims.
+
 ## [0.37.1]
 
 ### Fixed
