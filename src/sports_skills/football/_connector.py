@@ -77,6 +77,17 @@ LEAGUES = {
         "name": "Serie A",
         "country": "Italy",
     },
+    "serie-b": {
+        "espn": "ita.2",
+        "fduk": "I2",
+        "clubelo": "ITA",
+        "understat": None,  # Understat has no Serie B
+        "fpl": None,
+        "transfermarkt": "serie-b",
+        "openfootball": {"file": "it.2", "season_format": "aug", "timezone": "Europe/Rome"},
+        "name": "Serie B",
+        "country": "Italy",
+    },
     "ligue-1": {
         "espn": "fra.1",
         "fduk": "F1",
@@ -1340,6 +1351,13 @@ def _expand_abbrev(words):
     return expanded
 
 
+def _contains_at_word_start(haystack, needle):
+    """True when ``needle`` occurs in ``haystack`` starting at a word boundary."""
+    if not needle:
+        return False
+    return re.search(r"(?:^|\s)" + re.escape(needle.strip()), haystack) is not None
+
+
 def _teams_match(name1, name2):
     """Check if two team names likely refer to the same team."""
     if not name1 or not name2:
@@ -1348,7 +1366,9 @@ def _teams_match(name1, name2):
     n2 = _normalize_name(name2)
     if n1 == n2:
         return True
-    if n1 in n2 or n2 in n1:
+    # Containment must start at a word boundary: "inter" still matches
+    # "internazionale", but "remo" no longer matches "cremonese".
+    if _contains_at_word_start(n2, n1) or _contains_at_word_start(n1, n2):
         return True
     words1 = _expand_abbrev(set(w for w in n1.split() if len(w) > 2))
     words2 = _expand_abbrev(set(w for w in n2.split() if len(w) > 2))
@@ -3157,7 +3177,7 @@ def get_team_schedule(request_data):
 # ============================================================
 
 _FDUK_H2H_COVERAGE = (
-    "Premier League, Championship, La Liga, Serie A, Bundesliga, Ligue 1, "
+    "Premier League, Championship, La Liga, Serie A, Serie B, Bundesliga, Ligue 1, "
     "Eredivisie, Primeira Liga, Scottish Premiership, Belgian Pro League, "
     "Turkish Super Lig"
 )
@@ -4393,7 +4413,7 @@ def get_player_profile(request_data):
     if not player and pid:
         _espn_profile_slugs = [
             "eng.1", "esp.1", "ger.1", "ita.1", "fra.1", "bra.1", "usa.1",
-            "ned.1", "por.1", "mex.1", "arg.1", "eng.2", "sco.1", "bel.1",
+            "ned.1", "por.1", "mex.1", "arg.1", "eng.2", "ita.2", "sco.1", "bel.1",
         ]
         for slug in _espn_profile_slugs:
             url = (

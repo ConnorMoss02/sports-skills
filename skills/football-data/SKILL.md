@@ -1,7 +1,7 @@
 ---
 name: football-data
 description: |
-  Football (soccer) data across the world's major leagues — standings, schedules, match stats, xG, transfers, player profiles, head-to-head history, team strength (Elo), and match forecasts. Zero config, no API keys. Covers Premier League, La Liga, Bundesliga, Serie A, Ligue 1, MLS, Champions League, World Cup, Championship, Eredivisie, Primeira Liga, Serie A Brazil, Russian Premier League, Scottish/Belgian/Turkish top flights, European Championship, and more (call get_competitions for the live list).
+  Football (soccer) data across the world's major leagues — standings, schedules, match stats, xG, transfers, player profiles, head-to-head history, team strength (Elo), and match forecasts. Zero config, no API keys. Covers Premier League, La Liga, Bundesliga, Serie A, Ligue 1, MLS, Champions League, World Cup, Championship, Serie B, Eredivisie, Primeira Liga, Serie A Brazil, Russian Premier League, Scottish/Belgian/Turkish top flights, European Championship, and more (call get_competitions for the live list).
 
   Use when: user asks about football/soccer standings, fixtures, match stats, xG, lineups, player values, transfers, injury news, league tables, daily fixtures, player profiles, head-to-head records, team strength/Elo ratings, or match odds/forecasts.
   Don't use when: user asks about American football/NFL (use nfl-data), college football (use cfb-data), NBA (use nba-data), WNBA (use wnba-data), college basketball (use cbb-data), NHL (use nhl-data), MLB (use mlb-data), tennis (use tennis-data), golf (use golf-data), cricket (use cricket-data), Formula 1 (use fastf1), or betting odds (use polymarket or kalshi). Don't use for live/real-time scores — data updates post-match. Don't use get_season_leaders or get_missing_players for non-Premier League leagues (they return empty). Don't use get_event_xg for leagues outside the top 5 (EPL, La Liga, Bundesliga, Serie A, Ligue 1).
@@ -74,10 +74,10 @@ This skill stitches several free sources together. **Coverage is not uniform** �
 | Endpoint(s) | Source | Coverage |
 |---|---|---|
 | standings, schedules, teams, event summary/lineups/stats/timeline | ESPN | **All leagues** (broadest — the backbone) |
-| `get_event_xg`, `get_event_players_statistics` (xG fields) | Understat | **Top 5 only** (EPL, La Liga, Bundesliga, Serie A, Ligue 1). *Not RFPL — Understat dropped it.* |
+| `get_event_xg`, `get_event_players_statistics` (xG fields) | Understat | **Top 5 only** (EPL, La Liga, Bundesliga, Serie A, Ligue 1). *Not RFPL — Understat dropped it. No Serie B or Championship either.* |
 | `get_season_leaders`, `get_missing_players` | FPL | **Premier League only** |
 | `get_player_profile`, `get_season_transfers` (market value) | Transfermarkt | Any player with a `tm_player_id` |
-| `get_head_to_head` | football-data.co.uk | **11 European domestic leagues** (EPL, Championship, La Liga, Serie A, Bundesliga, Ligue 1, Eredivisie, Primeira Liga, Scottish, Belgian, Turkish). Same-division meetings only. |
+| `get_head_to_head` | football-data.co.uk | **12 European domestic leagues** (EPL, Championship, La Liga, Serie A, Serie B, Bundesliga, Ligue 1, Eredivisie, Primeira Liga, Scottish, Belgian, Turkish). Same-division meetings only. |
 | `get_team_strength` | ClubElo, falling back to local Elo | **European clubs** (incl. Russia). Falls back to ratings computed from football-data.co.uk when ClubElo is down. |
 | `get_match_forecast` | ClubElo | **European clubs** (incl. Russia). No fallback — needs ClubElo's fixture feed. |
 
