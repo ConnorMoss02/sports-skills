@@ -6,11 +6,12 @@ from pathlib import Path
 HISTORICAL_RELEASE_TESTS = {
     "test_release_036.py": "SPORTS_SKILLS_VERIFY_RELEASE_036",
     "test_release_037.py": "SPORTS_SKILLS_VERIFY_RELEASE_037",
+    "test_release_038.py": "SPORTS_SKILLS_VERIFY_RELEASE_038",
 }
 
 
 def pytest_ignore_collect(collection_path, config):
-    """Keep the v0.36 and v0.37 proofs opt-in after those immutable releases.
+    """Keep published release proofs opt-in after their immutable releases.
 
     The historical checksum tests rebuild the current source tree, so any later
     feature correctly changes their artifacts. Release verification can enable a
