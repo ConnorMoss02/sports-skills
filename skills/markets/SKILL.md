@@ -52,12 +52,12 @@ markets.get_price_history(venue="polymarket", token_id="<token_id>", interval="1
 
 CRITICAL: Before calling any orchestration command, verify:
 - A `sport` code is provided for sport-aware commands (`get_todays_markets`, `compare_odds`, `get_sport_markets`, `evaluate_market`).
-- Price sources are identified correctly before normalization: `espn` = American odds, `polymarket` = 0-1 probability, `kalshi` = 0-100 integer.
+- Price sources are identified correctly before normalization: `espn` = American odds, `polymarket`/`novig`/`gemini` = 0-1 probability, `kalshi` = 0-100 integer.
 
 ## Important Notes
 
 - **Sport context is passed through.** `--sport=nba` maps automatically to the correct Polymarket sport code and Kalshi series ticker.
-- **Venues differ by command.** `get_todays_markets`, `search_entity` and `compare_odds` search Kalshi, Polymarket, ProphetX and Novig. `get_sport_markets`, `match_markets` and `evaluate_market` use Kalshi and Polymarket only.
+- **Venues differ by command.** `get_todays_markets`, `search_entity` and `compare_odds` include Kalshi, Polymarket, ProphetX, Novig and Gemini where supported. Gemini discovery accepts no sport or `nba`, `wnba`, `nfl`, `cfb`, `mlb`, `nhl`, `epl`, `laliga`, `mls`, `ligamx`, `ufc`, `f1`, `golf`. The daily dashboard includes Gemini for supported ESPN scoreboard sports (`nba`, `wnba`, `nfl`, `cfb`, `mlb`, `nhl`). **Gemini comparison is NBA-only** until settlement equivalence is verified for other sports; those sports leave Gemini out of `sources`. Unsupported discovery sports skip Gemini without a request. `normalize_price` accepts `gemini` (0-1 probability). `get_sport_markets`, `match_markets` and `evaluate_market` use Kalshi and Polymarket only; `compare_market_url`, `get_market_price` and `get_price_history` do not support Gemini.
 - **Sport-aware search.** Polymarket uses `sport` → series_id; Kalshi searches every series mapped for the sport (game winners, spreads, totals, futures).
 - **Prices are normalized.** Everything is converted to implied probability for comparison.
 - **Discovery is not verification.** Raw market lists (`*_markets`, `get_sport_markets`, `search_entity`) are search hits, not verified equivalents of a given game's contract. Only `compare_odds` `side_prices` (and `evaluate_market`) are identity-checked.
@@ -69,7 +69,7 @@ CRITICAL: Before calling any orchestration command, verify:
 ```bash
 sports-skills markets get_todays_markets --sport=nba
 ```
-Returns each game with ESPN info, DraftKings odds, and matching Kalshi, Polymarket, ProphetX and Novig markets.
+Returns each game with ESPN info, DraftKings odds, and matching Kalshi, Polymarket, ProphetX, Novig and Gemini (`gemini_markets`) markets. Gemini dashboard discovery covers NBA, WNBA, NFL, CFB, MLB and NHL; it does not verify that each search hit is the same contract.
 
 ### Find Arb on a Specific Game
 
@@ -79,6 +79,7 @@ Returns each game with ESPN info, DraftKings odds, and matching Kalshi, Polymark
 4. `sources` and `completeness` say which venues actually priced this game; a provider error is reported as `error`, not as "no markets".
 5. For a direct price comparison read `side_prices.home` / `side_prices.away`: each lists `quotes` (`venue`, `implied_probability`, `price_basis: "reference"`, `execution_guaranteed: false`) admitted as this game's full-game moneyline, plus `lowest_reference` (`null` when a side has no quote; ties keep the first-listed venue). The lowest reference is not an executable quote, not fee-adjusted, and not a bet recommendation. Check `warnings` and `completeness.complete` before calling a comparison complete.
 6. Venues searched: Kalshi, Polymarket, ProphetX and Novig. Novig counts only when the event date matches and a full-game `MONEY` market has a two-way order book. Its price is the derived ask (1 − best opposite bid), a cached snapshot. Catalog-only markets, spreads and period markets show up in `novig_markets` but never price a side. `search_entity` and `get_todays_markets` also include a `novig` section with the same results.
+7. Gemini (nba only) counts only for exactly one active, full-contest moneyline (`moneyline`/`contest`/`full_contest`) of the same league whose `startTime` equals ESPN's start instant, with exactly two active, open, non-combo contracts whose sides agree with ESPN's teams and whose buy-YES prices are both in (0, 1). Its price is that buy-YES price from a cached public snapshot — a reference, not an executable quote, and volume says nothing about liquidity. Child markets (spreads, totals, props, periods), combos, three-way markets, closed/settled contracts, missing or malformed prices, other start times and duplicate candidates are refused with a reason in `sources.gemini.detail`; they still appear in `gemini_markets`. A Gemini failure is `error`; a partial scan (later page failed or scan truncated) is listed in `sources.gemini.warnings`.
 
 ### Compare a Pasted Market Link
 
@@ -89,7 +90,7 @@ Returns each game with ESPN info, DraftKings odds, and matching Kalshi, Polymark
 3. The venue API resolves exactly one **open** full-game two-way moneyline (Polymarket) or the two open game-winner contracts (Kalshi). Closed, non-moneyline, three-way or ambiguous sources are refused, and so is a provider answer that names another slug/ticker.
 4. ESPN scoreboards for the source date ±1 day must yield exactly one game whose teams and date validate. Doubleheaders and multiple matches are refused, and a scoreboard failure is reported as a failure, not as "no game".
 5. Returns the `compare_odds` payload unchanged (`side_prices`, `sources`, `warnings`, …) plus `source_market` (venue, canonical `url`, event/market ids, `espn_event_id`, `in_downstream_search`). When the source contract is missing from the comparison's venue search, a warning says so and no price is invented.
-6. This matches the same game's moneyline only. It does not mean the venues settle identically, and it guarantees no execution. Novig and ProphetX links are not accepted yet, though both venues still appear in the comparison.
+6. This matches the same game's moneyline only. It does not mean the venues settle identically, and it guarantees no execution. Novig, ProphetX and Gemini links are not accepted yet, though those venues still appear in the comparison where `compare_odds` searches them.
 
 ### Full Bet Evaluation
 
@@ -117,13 +118,13 @@ Example 1: Today's games with prediction market odds
 User says: "What NBA games are on today and what are the prediction market odds?"
 Actions:
 1. Call `get_todays_markets(sport="nba")`
-Result: Unified dashboard with each game's ESPN info and Kalshi/Polymarket/ProphetX/Novig markets
+Result: Unified dashboard with each game's ESPN info and Kalshi/Polymarket/ProphetX/Novig/Gemini markets
 
 Example 2: Cross-platform team search
 User says: "Find me Lakers markets on Kalshi and Polymarket"
 Actions:
 1. Call `search_entity(query="Lakers", sport="nba")`
-Result: Lakers search hits from Kalshi, Polymarket, ProphetX and Novig (discovery only — not verified as the same contract)
+Result: Lakers search hits from Kalshi, Polymarket, ProphetX, Novig and Gemini (discovery only — not verified as the same contract)
 
 Example 3: Odds comparison for a specific game
 User says: "Compare the odds for this Celtics game across ESPN and Polymarket"

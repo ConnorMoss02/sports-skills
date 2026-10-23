@@ -675,6 +675,75 @@ def _novig_warnings(report: dict, query: str) -> list[str]:
     return [f"Novig partial coverage for '{query}': {w.get('message', '')}" for w in report.get("warnings", [])]
 
 
+def _search_gemini(entity: str, sport: str | None = None, report: dict | None = None) -> list[dict]:
+    """Gemini Predictions markets for a query, grouped by game event.
+
+    Each market's ``outcomes`` are its contracts with public snapshot prices
+    (``buy_yes``, ``best_bid``, ``best_ask``, ...); a missing price stays None.
+    Only leagues with a verified Gemini ticker prefix are searched; any other
+    sport is skipped (report transport ``"skipped"``) without a request.
+    """
+    try:
+        from sports_skills import gemini
+        from sports_skills.gemini._connector import LEAGUES
+    except ImportError:
+        _note(report, "error", "gemini module not available")
+        return []
+
+    if sport and sport not in LEAGUES:
+        _note(report, "skipped", f"Gemini has no verified '{sport}' listings")
+        return []
+
+    try:
+        result = gemini.search_markets(query=entity, league=sport)
+    except Exception as exc:
+        logger.warning("Gemini search failed: %s", exc)
+        _note(report, "error", str(exc))
+        return []
+
+    if not result.get("status"):
+        _note(report, "error", result.get("message", "Gemini search returned an error"))
+        return []
+    _note(report, "ok")
+
+    data = result.get("data") or {}
+    coverage = list(data.get("warnings") or [])
+    if data.get("truncated"):
+        coverage.append({"stage": "search", "message": "Gemini search truncated; markets may be missing"})
+
+    # Child markets (spreads, totals, props) group under their game event.
+    events_map: dict[str, dict] = {}
+    for m in data.get("markets") or []:
+        key = m.get("parent_ticker") or m.get("ticker")
+        event = events_map.setdefault(
+            key,
+            {
+                "source": "gemini",
+                "event_ticker": key,
+                "title": m.get("name", ""),
+                "scheduled": m.get("start_time") or "",
+                "league": m.get("league", ""),
+                "markets": [],
+            },
+        )
+        if m.get("ticker") == key:
+            event["title"] = m.get("name", "")
+        entry = {k: v for k, v in m.items() if k not in ("_raw", "contracts")}
+        entry["outcomes"] = m.get("contracts") or []
+        event["markets"].append(entry)
+
+    if report is not None and coverage:
+        report["warnings"] = coverage
+    return list(events_map.values())
+
+
+def _gemini_warnings(report: dict, query: str) -> list[str]:
+    """Discovery warnings from a ``_search_gemini`` report: errors and partial coverage."""
+    if report.get("transport") == "error":
+        return [f"Gemini search failed for '{query}': {report.get('detail', '')}"]
+    return [f"Gemini partial coverage for '{query}': {w.get('message', '')}" for w in report.get("warnings", [])]
+
+
 # ============================================================
 # 2E. Odds Normalization
 # ============================================================
@@ -690,10 +759,11 @@ def _normalize_price(price: float, source: str) -> dict:
                          selections when an order book is exposed, or from the
                          authenticated Affiliate surface)
     source="novig":      price is 0-1 probability (order-book derived ask)
+    source="gemini":     price is 0-1 probability (public snapshot contract price)
     """
     from sports_skills.betting._calcs import convert_odds
 
-    if source in ("polymarket", "novig"):
+    if source in ("polymarket", "novig", "gemini"):
         if price <= 0 or price >= 1:
             return {"implied_probability": price, "american": 0.0, "decimal": 0.0, "source": source}
         result = convert_odds({"params": {"odds": price, "from_format": "probability"}})
@@ -729,8 +799,9 @@ _REFERENCE_NOTE = "reference price (last trade / midpoint) — not an executable
 
 _COMPARE_REFERENCE_NOTE = (
     "Every price compared here is a reference price (sportsbook line, exchange last trade "
-    "or midpoint, or a Novig ask derived as the complement of the best opposite bid in a "
-    "cached order-book snapshot), not an executable quote — no size or fill is implied. "
+    "or midpoint, a Novig ask derived as the complement of the best opposite bid in a "
+    "cached order-book snapshot, or a Gemini buy-YES price from a cached public event "
+    "snapshot), not an executable quote — no size or fill is implied. "
     "side_prices.lowest_reference is the lowest such reference per side: not executable, "
     "not fee-adjusted, and not a bet recommendation."
 )
@@ -1138,7 +1209,9 @@ def _find_poly_game_market(sport: str, identity: dict, side: str, report: dict) 
 
 
 def get_todays_markets(request_data: dict) -> dict:
-    """Fetch ESPN schedule, search Kalshi, Polymarket, ProphetX and Novig, return unified dashboard.
+    """Fetch ESPN schedule, search Kalshi, Polymarket, ProphetX, Novig and Gemini, return unified dashboard.
+
+    Gemini is searched only for leagues it lists (nba here); other sports skip it.
 
     Params:
         sport (str): Sport key (nba, nfl, etc.). Omit for all sports.
@@ -1199,12 +1272,21 @@ def get_todays_markets(request_data: dict) -> dict:
             warnings.append(f"Novig search failed for '{search_query}': {exc}")
         warnings.extend(_novig_warnings(novig_report, search_query))
 
+        gemini_matches = []
+        gemini_report: dict = {}
+        try:
+            gemini_matches = _search_gemini(search_query, game["sport"], report=gemini_report)
+        except Exception as exc:
+            warnings.append(f"Gemini search failed for '{search_query}': {exc}")
+        warnings.extend(_gemini_warnings(gemini_report, search_query))
+
         game_entry = {
             **game,
             "kalshi_markets": kalshi_matches,
             "polymarket_markets": poly_matches,
             "prophetx_markets": prophetx_matches,
             "novig_markets": novig_matches,
+            "gemini_markets": gemini_matches,
         }
         dashboard.append(game_entry)
 
@@ -1220,7 +1302,9 @@ def get_todays_markets(request_data: dict) -> dict:
 
 
 def search_entity(request_data: dict) -> dict:
-    """Search Kalshi, Polymarket, ProphetX and Novig for a team/player/event name.
+    """Search Kalshi, Polymarket, ProphetX, Novig and Gemini for a team/player/event name.
+
+    Gemini is searched only with no sport or a league it lists (nba, epl, laliga).
 
     Params:
         query (str): Search query (team name, player name, etc.).
@@ -1264,7 +1348,15 @@ def search_entity(request_data: dict) -> dict:
         warnings.append(f"Novig search failed: {exc}")
     warnings.extend(_novig_warnings(novig_report, query))
 
-    total = len(kalshi_results) + len(poly_results) + len(prophetx_results) + len(novig_results)
+    gemini_results = []
+    gemini_report: dict = {}
+    try:
+        gemini_results = _search_gemini(query, sport, report=gemini_report)
+    except Exception as exc:
+        warnings.append(f"Gemini search failed: {exc}")
+    warnings.extend(_gemini_warnings(gemini_report, query))
+
+    total = len(kalshi_results) + len(poly_results) + len(prophetx_results) + len(novig_results) + len(gemini_results)
 
     return _success_partial(
         {
@@ -1274,6 +1366,7 @@ def search_entity(request_data: dict) -> dict:
             "polymarket": poly_results,
             "prophetx": prophetx_results,
             "novig": novig_results,
+            "gemini": gemini_results,
             "total_results": total,
         },
         warnings,
@@ -1352,7 +1445,13 @@ def compare_odds(request_data: dict) -> dict:
         ("polymarket", _search_polymarket),
         ("prophetx", _search_prophetx),
         ("novig", _search_novig),
+        ("gemini", _search_gemini),
     ):
+        # Discovery coverage does not prove settlement equivalence. Only NBA
+        # full-game winner contracts have been verified for this comparison.
+        if name == "gemini" and sport != "nba":
+            found[name] = []
+            continue
         transport: dict = {}
         try:
             results = search(search_query, sport, report=transport) or []
@@ -1360,6 +1459,8 @@ def compare_odds(request_data: dict) -> dict:
             results, transport = [], {"transport": "error", "detail": str(exc)}
             warnings.append(f"{name} search failed: {exc}")
         found[name] = results
+        if transport.get("transport") == "skipped":
+            continue  # the venue lists no markets for this sport: not attempted
         if transport.get("transport") == "error":
             outcome = "error"
         elif not results:
@@ -1564,6 +1665,62 @@ def compare_odds(request_data: dict) -> dict:
                 f"{next(iter(legs))} side; half a market is not a comparison",
             )
 
+    # Gemini: exactly ONE active full-contest moneyline of this league starting
+    # at this game's exact instant, whose two open single-leg contracts name
+    # this game's sides and both carry a buy-YES price in (0, 1). Child events
+    # (spreads, totals, props, periods) and three-way markets price other
+    # propositions; two candidates are different bets. All are refused.
+    def _gemini_reason(market):
+        from sports_skills.gemini._connector import LEAGUES
+
+        ticker = market.get("ticker") or "market"
+        if identity["start_utc"] is None:
+            return _NO_DATE_REASON
+        if market.get("league") != LEAGUES.get(sport, ("",))[0]:
+            return f"Gemini '{ticker}' is not a {sport.upper()} market"
+        kind = (market.get("market_type"), market.get("market_subject"), market.get("market_scope"))
+        if kind != ("moneyline", "contest", "full_contest"):
+            return f"Gemini '{ticker}' is a {'/'.join(str(k) for k in kind)} market, not the full-game moneyline"
+        if market.get("status") != "active":
+            return f"Gemini '{ticker}' is {market.get('status') or 'in an unknown state'}, not active"
+        if not _same_start(market.get("start_time"), identity["start_utc"]):
+            return (
+                f"Gemini '{ticker}' starts {market.get('start_time') or 'at an unstated time'}; "
+                f"this game starts {identity['start']}"
+            )
+        outcomes = market.get("outcomes") or []
+        if len(outcomes) != 2:
+            return f"Gemini '{ticker}' has {len(outcomes)} outcomes; only a two-way moneyline is compared"
+        for o in outcomes:
+            label = o.get("label") or o.get("ticker")
+            if o.get("status") != "active" or o.get("market_state") != "open" or o.get("is_combo") is not False:
+                return f"Gemini '{ticker}' contract '{label}' is not an active, open, single-leg contract"
+            if not 0 < (o.get("buy_yes") or 0) < 1:
+                return f"Gemini '{ticker}' contract '{label}' has no usable buy price"
+            if o.get("side") not in ("home", "away") or _side_for_label(label) != o["side"]:
+                return f"Gemini '{ticker}' contract '{label}' is listed as {o.get('side')}, which ESPN contradicts"
+        if {o["side"] for o in outcomes} != {"home", "away"}:
+            return f"Gemini '{ticker}' contracts do not cover both sides of this game"
+        return ""
+
+    gemini_candidates, gemini_rejections = [], []
+    for event in found["gemini"]:
+        for market in event.get("markets") or []:
+            reason = _gemini_reason(market)
+            if reason:
+                gemini_rejections.append(reason)
+            else:
+                gemini_candidates.append(market)
+    if len(gemini_candidates) > 1:
+        tickers = ", ".join(str(m.get("ticker")) for m in gemini_candidates)
+        _reject("gemini", f"ambiguous full-game candidates: {tickers} — refusing to pool separate Gemini markets")
+    elif gemini_candidates:
+        for o in gemini_candidates[0]["outcomes"]:
+            side_prices[o["side"]].append((o["buy_yes"], f"gemini_{o.get('label', '')}"))
+    else:
+        for reason in gemini_rejections:
+            _reject("gemini", reason)
+
     all_probs = []
     all_labels = []
     if side_prices["home"] and side_prices["away"]:
@@ -1595,12 +1752,18 @@ def compare_odds(request_data: dict) -> dict:
     # A source counts as usable only if it actually priced one of this game's
     # sides — transport success and a non-empty market list do not.
     contributed = {label.split("_", 1)[0] for prices in side_prices.values() for _prob, label in prices}
-    for venue, prefix in (("polymarket", "poly"), ("prophetx", "prophetx"), ("kalshi", "kalshi"), ("novig", "novig")):
+    for venue, prefix in (
+        ("polymarket", "poly"),
+        ("prophetx", "prophetx"),
+        ("kalshi", "kalshi"),
+        ("novig", "novig"),
+        ("gemini", "gemini"),
+    ):
         if prefix in contributed:
             sources[venue]["outcome"] = "ok"
 
     # The admitted legs, per side, for direct comparison. Ties keep the first
-    # admitted quote (gathering order: espn, polymarket, prophetx, novig, kalshi).
+    # admitted quote (gathering order: espn, polymarket, prophetx, novig, kalshi, gemini).
     def _side_view(side: str, team: str) -> dict:
         quotes = [
             {
@@ -1626,6 +1789,7 @@ def compare_odds(request_data: dict) -> dict:
         "polymarket_markets": poly_matches,
         "prophetx_markets": prophetx_matches,
         "novig_markets": novig_matches,
+        "gemini_markets": found["gemini"],
         "arbitrage_check": arb_check,
         "side_prices": {"home": _side_view("home", home_team), "away": _side_view("away", away_team)},
         # Nothing compared here is a quote anyone has committed to fill.
@@ -2249,9 +2413,9 @@ def normalize_price(request_data: dict) -> dict:
 
     Params:
         price (float): The price/odds value.
-        source (str): Source platform — "polymarket", "novig", "kalshi", "espn", or
-            "prophetx" (American odds, from public selections when an order
-            book is exposed or from the authenticated Affiliate surface).
+        source (str): Source platform — "polymarket", "novig", "gemini", "kalshi",
+            "espn", or "prophetx" (American odds, from public selections when an
+            order book is exposed or from the authenticated Affiliate surface).
     """
     params = request_data.get("params", {})
 
@@ -2261,8 +2425,12 @@ def normalize_price(request_data: dict) -> dict:
         return _error(f"Invalid price: {e}")
 
     source = str(params.get("source", "")).lower()
-    if source not in ("polymarket", "novig", "kalshi", "espn", "prophetx"):
-        return _error(f"Unknown source '{source}'. Use 'polymarket', 'novig', 'kalshi', 'espn', or 'prophetx'.")
+    if source not in ("polymarket", "novig", "gemini", "kalshi", "espn", "prophetx"):
+        return _error(
+            f"Unknown source '{source}'. Use 'polymarket', 'novig', 'gemini', 'kalshi', 'espn', or 'prophetx'."
+        )
+    if source == "gemini" and not 0 <= price <= 1:  # NaN fails too
+        return _error(f"Gemini prices are 0-1 probabilities, got {price}")
 
     result = _normalize_price(price, source)
     return _success(result, f"Normalized {source} price {price}")

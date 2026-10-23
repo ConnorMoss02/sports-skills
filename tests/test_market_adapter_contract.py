@@ -42,8 +42,16 @@ SPORTS = {
     "wnba": (_wnba_normalize, _team("17", "Las Vegas", "Aces", "LV"), _team("9", "New York", "Liberty", "NY")),
     "mlb": (_mlb_normalize, _team("19", "Los Angeles", "Dodgers", "LAD"), _team("26", "San Francisco", "Giants", "SF")),
     "nhl": (_nhl_normalize, _team("7", "Colorado", "Avalanche", "COL"), _team("9", "Dallas", "Stars", "DAL")),
-    "cfb": (_cfb_normalize, _team("194", "Ohio State", "Buckeyes", "OSU"), _team("130", "Michigan", "Wolverines", "MICH")),
-    "cbb": (_cbb_normalize, _team("150", "Duke", "Blue Devils", "DUKE"), _team("153", "North Carolina", "Tar Heels", "UNC")),
+    "cfb": (
+        _cfb_normalize,
+        _team("194", "Ohio State", "Buckeyes", "OSU"),
+        _team("130", "Michigan", "Wolverines", "MICH"),
+    ),
+    "cbb": (
+        _cbb_normalize,
+        _team("150", "Duke", "Blue Devils", "DUKE"),
+        _team("153", "North Carolina", "Tar Heels", "UNC"),
+    ),
 }
 
 EVERY_SPORT = pytest.mark.parametrize("sport", sorted(SPORTS))
@@ -123,6 +131,7 @@ def _compare(sport, summary, prophetx=None):
         patch("sports_skills.markets._connector._search_kalshi") as kalshi,
         patch("sports_skills.markets._connector._search_polymarket") as poly,
         patch("sports_skills.markets._connector._search_prophetx") as px,
+        patch("sports_skills.markets._connector._search_gemini", return_value=[]),
     ):
         load.return_value = _sport_module(summary)
         kalshi.return_value = []
@@ -170,9 +179,7 @@ class TestComparisonAcrossSports:
     def test_an_undated_summary_still_admits_no_dated_market(self, sport, date):
         # Fail closed: with no usable ESPN date, a repeat meeting of this
         # matchup would validate exactly as well as this one.
-        result = _compare(
-            sport, _normalized(sport, date=date), prophetx=[_prophetx_event(sport)]
-        )
+        result = _compare(sport, _normalized(sport, date=date), prophetx=[_prophetx_event(sport)])
         prophetx = result["data"]["sources"]["prophetx"]
         assert prophetx["outcome"] == "unmatched"
         assert "unstated time" in prophetx["detail"]

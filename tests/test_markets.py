@@ -36,8 +36,11 @@ from sports_skills.markets._connector import (
 
 @pytest.fixture(autouse=True)
 def _no_novig():
-    """Keep the Novig venue offline; these tests pin the other venues."""
-    with patch("sports_skills.markets._connector._search_novig", return_value=[]):
+    """Keep the Novig and Gemini venues offline; these tests pin the other venues."""
+    with (
+        patch("sports_skills.markets._connector._search_novig", return_value=[]),
+        patch("sports_skills.markets._connector._search_gemini", return_value=[]),
+    ):
         yield
 
 
