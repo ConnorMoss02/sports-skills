@@ -100,7 +100,7 @@ Returns `data.team`, `data.venue`, and `data.players[]` for the current squad.
 ### get_head_to_head
 Head-to-head history between two teams via football-data.co.uk (free CSV).
 **European domestic leagues only** (Premier League, Championship, La Liga, Serie A,
-Bundesliga, Ligue 1, Eredivisie, Primeira Liga, Scottish Premiership, Belgian Pro
+Serie B, Bundesliga, Ligue 1, Eredivisie, Primeira Liga, Scottish Premiership, Belgian Pro
 League, Turkish Super Lig). Returns an informative message for other leagues.
 - `team_id` (str, required): First team ESPN ID
 - `team_id_2` (str, required): Second team ESPN ID

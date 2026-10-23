@@ -90,7 +90,7 @@
       "untrusted_content": true
     },
     "football-data": {
-      "description": "Football (soccer) data across 13 leagues — standings, schedules, match stats, xG, transfers, player profiles. Zero config, no API keys. Covers Premier League, La Liga, Bundesliga, Serie A, Ligue 1, MLS, Champions League, World Cup, Champion",
+      "description": "Football (soccer) data — standings, schedules, match stats, xG, transfers, player profiles. Zero config, no API keys. Covers Premier League, La Liga, Bundesliga, Serie A, Serie B, Ligue 1, MLS, UCL and more.",
       "external_network": true,
       "mode": "read_only",
       "money_movement": false,

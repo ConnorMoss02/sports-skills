@@ -1994,6 +1994,25 @@ class TestFootballNameNormalization:
         # Distinct clubs sharing a token must NOT collide
         assert not _teams_match("Man City", "Manchester United")
 
+    def test_substring_must_start_at_word_boundary(self):
+        from sports_skills.football._connector import _teams_match
+
+        # "remo" sits inside "cremonese"; searching Cremonese used to return Remo.
+        assert not _teams_match("Cremonese", "Remo")
+        assert not _teams_match("Remo", "Cremonese")
+        assert _teams_match("Cremonese", "Cremonese")
+        # Prefix containment still works for partial queries.
+        assert _teams_match("Inter", "Internazionale")
+        assert _teams_match("Tottenham", "Tottenham Hotspur")
+
+    def test_word_start_after_punctuation(self):
+        from sports_skills.football._connector import _teams_match
+
+        assert _teams_match("Glimt", "Bodo/Glimt")
+        assert _teams_match("Bodo/Glimt", "Glimt")
+        assert not _teams_match("Remo", "Cremonese")
+        assert _teams_match("Inter", "Internazionale")
+
 
 class TestFootballSummaryNullBoxscore:
     """Defensive guard: a null ``boxscore`` must degrade to empty, not raise.
@@ -2448,6 +2467,12 @@ class TestFdukDriftGuard:
         ("RB Leipzig", "D1", "RB Leipzig"),
         ("Internazionale", "I1", "Inter"),                     # not "Milan"
         ("AC Milan", "I1", "Milan"),                           # not "Inter"
+        ("Hellas Verona", "I2", "Verona"),                     # Serie B
+        ("US Avellino", "I2", "Avellino"),
+        ("Cremonese", "I2", "Cremonese"),
+        ("Juve Stabia", "I2", "Juve Stabia"),
+        ("Virtus Entella", "I2", "Virtus Entella"),
+        ("Sudtirol", "I2", "Sudtirol"),
         ("Paris Saint-Germain", "F1", "Paris SG"),             # override, not "Paris FC"
         ("Paris FC", "F1", "Paris FC"),                        # exact, not "Paris SG"
         ("Stade Rennais", "F1", "Rennes"),                     # override: city label
