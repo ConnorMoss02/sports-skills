@@ -500,8 +500,8 @@ SUMMARY_RETRIEVED_AT_KEY = "_retrieved_at"
 
 def summary_game_state(summary_data):
     """ESPN's ``pre`` / ``in`` / ``post`` state for a summary, or None when absent."""
-    competitions = _as_dict(_as_dict(summary_data).get("header")).get("competitions") or []
-    if not competitions or not isinstance(competitions[0], dict):
+    competitions = _as_dict(_as_dict(summary_data).get("header")).get("competitions")
+    if not isinstance(competitions, list) or not competitions or not isinstance(competitions[0], dict):
         return None
     state = _as_dict(_as_dict(competitions[0].get("status")).get("type")).get("state")
     return state or None
@@ -1558,8 +1558,9 @@ def _football_situation(raw):
 
 def _football_play(p):
     play_type = _as_dict(p.get("type"))
+    play_id = p.get("id")
     return {
-        "id": str(p.get("id", "")),
+        "id": str(play_id) if play_id not in (None, "") else "",
         "sequence_number": _int_or_none(p.get("sequenceNumber")),
         "text": p.get("text", ""),
         "type": play_type.get("text", ""),

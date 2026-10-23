@@ -260,6 +260,24 @@ class TestPublicApi:
         assert len(data["drives"][-1]["plays"]) == 5
         assert data["retrieved_at"] == "2026-10-15T00:20:00Z"
 
+    @pytest.mark.parametrize("sport", ["nfl", "cfb"])
+    def test_explicit_null_play_ids_are_not_merged(self, sport, monkeypatch):
+        import importlib
+
+        module = importlib.import_module(f"sports_skills.{sport}")
+        connector = importlib.import_module(f"sports_skills.{sport}._connector")
+        summary = {
+            "drives": {
+                "previous": [
+                    {"id": "1", "plays": [{"id": None, "text": "a"}, {"id": None, "text": "b"}]},
+                    {"id": "2", "plays": [{"id": None, "text": "c"}]},
+                ]
+            }
+        }
+        monkeypatch.setattr(connector, "espn_summary", lambda *a, **kw: summary)
+        drives = module.get_play_by_play(event_id="1")["data"]["drives"]
+        assert [[p["text"] for p in d["plays"]] for d in drives] == [["a", "b"], ["c"]]
+
 
 class TestLiveSummaryCache:
     @pytest.fixture(autouse=True)
@@ -301,3 +319,9 @@ class TestLiveSummaryCache:
     def test_non_object_json_is_a_failure(self, monkeypatch):
         self._serve(monkeypatch, ["not", "a", "summary"])
         assert _espn_base.espn_summary("football/nfl", "1") is None
+
+    @pytest.mark.parametrize("competitions", [{"status": {"type": {"state": "in"}}}, 1])
+    def test_malformed_header_competitions_do_not_raise(self, competitions, monkeypatch):
+        self._serve(monkeypatch, {"header": {"competitions": competitions}})
+        data = _espn_base.espn_summary("football/nfl", "1")
+        assert data[_espn_base.SUMMARY_RETRIEVED_AT_KEY].endswith("Z")
