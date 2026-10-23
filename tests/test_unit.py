@@ -2005,6 +2005,14 @@ class TestFootballNameNormalization:
         assert _teams_match("Inter", "Internazionale")
         assert _teams_match("Tottenham", "Tottenham Hotspur")
 
+    def test_word_start_after_punctuation(self):
+        from sports_skills.football._connector import _teams_match
+
+        assert _teams_match("Glimt", "Bodo/Glimt")
+        assert _teams_match("Bodo/Glimt", "Glimt")
+        assert not _teams_match("Remo", "Cremonese")
+        assert _teams_match("Inter", "Internazionale")
+
 
 class TestFootballSummaryNullBoxscore:
     """Defensive guard: a null ``boxscore`` must degrade to empty, not raise.

@@ -1355,7 +1355,7 @@ def _contains_at_word_start(haystack, needle):
     """True when ``needle`` occurs in ``haystack`` starting at a word boundary."""
     if not needle:
         return False
-    return re.search(r"(?:^|\s)" + re.escape(needle.strip()), haystack) is not None
+    return re.search(r"(?<!\w)" + re.escape(needle.strip()), haystack) is not None
 
 
 def _teams_match(name1, name2):
