@@ -9,7 +9,7 @@ import zipfile
 from pathlib import Path
 
 VERSION = "0.38.0"
-SOURCE_COMMIT = "e36b27c1e4e57c47b94bb04e3de9acf334e2c354"
+SOURCE_COMMIT = "64d94f6939c276792820145689fe36797941a8be"
 EXPECTED = [
     f"sports_skills-{VERSION}-py3-none-any.whl",
     f"sports_skills-{VERSION}.tar.gz",

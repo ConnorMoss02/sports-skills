@@ -9,8 +9,8 @@ import tarfile
 import tempfile
 from pathlib import Path
 
-REVIEWED_SOURCE_COMMIT = "e36b27c1e4e57c47b94bb04e3de9acf334e2c354"
-SOURCE_DATE_EPOCH = 1792772774
+REVIEWED_SOURCE_COMMIT = "64d94f6939c276792820145689fe36797941a8be"
+SOURCE_DATE_EPOCH = 1792783468
 VERSION = "0.38.0"
 EXPECTED_FILES = {
     f"sports_skills-{VERSION}-py3-none-any.whl",
