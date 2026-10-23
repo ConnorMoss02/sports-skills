@@ -1211,7 +1211,7 @@ def _find_poly_game_market(sport: str, identity: dict, side: str, report: dict) 
 def get_todays_markets(request_data: dict) -> dict:
     """Fetch ESPN schedule, search Kalshi, Polymarket, ProphetX, Novig and Gemini, return unified dashboard.
 
-    Gemini is searched only for leagues it lists (nba here); other sports skip it.
+    Gemini is searched only for leagues it lists (every sport here except cbb); cbb skips it.
 
     Params:
         sport (str): Sport key (nba, nfl, etc.). Omit for all sports.
@@ -1304,7 +1304,7 @@ def get_todays_markets(request_data: dict) -> dict:
 def search_entity(request_data: dict) -> dict:
     """Search Kalshi, Polymarket, ProphetX, Novig and Gemini for a team/player/event name.
 
-    Gemini is searched only with no sport or a league it lists (nba, epl, laliga).
+    Gemini is searched only with no sport or a league in gemini's LEAGUES.
 
     Params:
         query (str): Search query (team name, player name, etc.).

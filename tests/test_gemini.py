@@ -599,6 +599,27 @@ def test_search_filters_market_type(gm, upstream):
     assert [m["ticker"] for m in result["data"]["markets"]] == [NBA_ML]
 
 
+@pytest.mark.parametrize(
+    "title",
+    [
+        pytest.param(None, id="null"),
+        pytest.param(7, id="int"),
+        pytest.param(1.5, id="float"),
+        pytest.param(["Minnesota vs Orlando"], id="list"),
+        pytest.param({"en": "Minnesota vs Orlando"}, id="dict"),
+    ],
+)
+def test_search_survives_non_string_title(gm, upstream, title):
+    # Synthetic: the NBA moneyline with a non-string title; EPL is untouched.
+    upstream.events = [_synthetic(NBA, lambda e: e.update(title=title)), EPL]
+    other = gm.search_markets(query="Nottingham Ipswich")
+    assert other["status"] is True, other["message"]
+    assert EPL_ML in [m["ticker"] for m in other["data"]["markets"]]
+    own = gm.search_markets(query="Timberwolves Magic", league="nba")
+    assert own["status"] is True, own["message"]
+    assert NBA_ML in [m["ticker"] for m in own["data"]["markets"]]
+
+
 def test_search_is_bounded_and_honest_about_truncation(gm, upstream):
     upstream.routes["/events"] = lambda q: {
         "data": [_synthetic(NBA, lambda e: e.update(ticker=f"NBA-X-{len(upstream.urls)}", title="Bulls vs Bucks"))],

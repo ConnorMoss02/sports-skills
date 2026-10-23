@@ -222,11 +222,12 @@ def _normalize_contract(contract):
 
 def _normalize_event(event, retrieved_at, parent_ticker=None):
     sports_market = _dict(event.get("sportsMarket"))
+    title = event.get("title")
     return {
         "id": event.get("id"),
         "ticker": event.get("ticker"),
         "parent_ticker": parent_ticker,
-        "name": event.get("title", ""),
+        "name": title if isinstance(title, str) else "",
         "league": _league_of(event.get("ticker")),
         "sport": sports_market.get("sport"),
         "status": event.get("status", ""),
