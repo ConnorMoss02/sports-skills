@@ -1,3 +1,11 @@
+## [0.39.0]
+
+### Added
+- **football: Italian Serie B.** Register `serie-b` with ESPN `ita.2` and football-data.co.uk `I2`, including standings, schedules and historical head-to-head coverage.
+
+### Fixed
+- **football: team-name matching.** Require containment to start at a word boundary, including punctuation, so `Remo` does not match `Cremonese` while `Glimt` still matches `Bodo/Glimt`.
+
 ## [0.38.0]
 
 ### Added

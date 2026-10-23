@@ -210,3 +210,20 @@ def test_event_summary_probe_fetches_real_league_once(monkeypatch):
 def test_timeline_keeps_stoppage_time_as_added_time():
     tl = c._normalize_espn_summary_timeline(LA_LIGA_SUMMARY)
     assert [(e["minute"], e["added_time"]) for e in tl] == [(45, 3), (59, 0), (90, 7)]
+
+
+def test_serie_b_is_wired_like_serie_a():
+    serie_a = c.LEAGUES["serie-a"]
+    serie_b = c.LEAGUES["serie-b"]
+    assert serie_b["espn"] == "ita.2"
+    assert serie_b["fduk"] == "I2"
+    assert serie_b["clubelo"] == serie_a["clubelo"] == "ITA"
+    assert serie_b["openfootball"]["file"] == "it.2"
+    assert serie_b["openfootball"]["timezone"] == serie_a["openfootball"]["timezone"]
+    assert serie_b["country"] == "Italy"
+    # No Understat or FPL data exists for Serie B.
+    assert serie_b["understat"] is None
+    assert serie_b["fpl"] is None
+    assert c.ESPN_TO_SLUG["ita.2"] == "serie-b"
+    assert c._espn_league_code("serie-b") == "ita.2"
+    assert c._espn_league_code("ita.2") == "ita.2"

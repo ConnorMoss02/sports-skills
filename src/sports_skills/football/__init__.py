@@ -261,7 +261,7 @@ def get_head_to_head(
     """Get head-to-head history between two teams (via football-data.co.uk).
 
     Covers European domestic leagues only (Premier League, Championship, La Liga,
-    Serie A, Bundesliga, Ligue 1, Eredivisie, Primeira Liga, Scottish Premiership,
+    Serie A, Serie B, Bundesliga, Ligue 1, Eredivisie, Primeira Liga, Scottish Premiership,
     Belgian Pro League, Turkish Super Lig). Returns per-meeting results plus an
     aggregated win/draw/goal summary.
 

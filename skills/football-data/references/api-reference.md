@@ -184,7 +184,7 @@ football-data.co.uk label it resolved to) or a `reason` when it did not. A club
 that could not be matched is reported as such — `total_meetings: 0` with an
 unresolved club means "we could not look this pair up", not "they never met".
 
-Coverage: Premier League, Championship, La Liga, Serie A, Bundesliga, Ligue 1,
+Coverage: Premier League, Championship, La Liga, Serie A, Serie B, Bundesliga, Ligue 1,
 Eredivisie, Primeira Liga, Scottish Premiership, Belgian Pro League, Turkish Super Lig.
 
 ### get_team_strength
@@ -279,4 +279,4 @@ Returns market value, value history, transfer history. With `fpl_id`, also retur
 
 ## Supported Leagues
 
-Premier League, La Liga, Bundesliga, Serie A, Ligue 1, MLS, Championship, Eredivisie, Primeira Liga, Serie A Brazil, Champions League, European Championship, World Cup.
+Premier League, La Liga, Bundesliga, Serie A, Ligue 1, MLS, Championship, Serie B, Eredivisie, Primeira Liga, Serie A Brazil, Champions League, European Championship, World Cup.
