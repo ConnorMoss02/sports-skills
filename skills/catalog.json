@@ -100,6 +100,17 @@
       "skill_path": "skills/football-data/SKILL.md",
       "untrusted_content": true
     },
+    "gemini": {
+      "description": "Gemini Predictions — public sports prediction-market events with contract prices as probabilities (NBA, WNBA, NFL, college football, MLB, NHL, EPL, La Liga, MLS, Liga MX, UFC, F1, golf). Prices are cached snapshots, not executable quotes. No API key, read-only.",
+      "external_network": true,
+      "mode": "read_only",
+      "money_movement": false,
+      "requires_explicit_confirmation": false,
+      "risk": "medium",
+      "secrets_required": false,
+      "skill_path": "skills/gemini/SKILL.md",
+      "untrusted_content": true
+    },
     "golf-data": {
       "description": "PGA Tour, LPGA, and DP World Tour golf data via ESPN public endpoints — tournament leaderboards, scorecards, season schedules, golfer profiles/overviews, and news. Zero config, no API keys.",
       "external_network": true,

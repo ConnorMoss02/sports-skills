@@ -4,8 +4,8 @@
 
 | Command | Required | Optional | Description |
 |---|---|---|---|
-| `get_todays_markets` | | sport, date | Fetch ESPN schedule → search both exchanges with sport context → unified dashboard |
-| `search_entity` | query | sport | Search Kalshi + Polymarket for a team/player/event name (passes sport to both platforms) |
+| `get_todays_markets` | | sport, date | Fetch ESPN schedule → search supported Kalshi, Polymarket, ProphetX, Novig and Gemini listings → unified dashboard |
+| `search_entity` | query | sport | Search Kalshi, Polymarket, ProphetX, Novig and Gemini for a team/player/event name; each venue retains its supported sport coverage |
 | `compare_odds` | sport, event_id | | ESPN odds + prediction market prices → normalized side-by-side + arb check |
 | `get_sport_markets` | sport | status, limit | Sport-filtered market listing on both platforms (uses sport code, not text query) |
 | `get_sport_schedule` | | sport, date | Unified ESPN schedule across one or all sports |
@@ -31,6 +31,18 @@
 
 - `sources` gives a per-source outcome (`ok` / `empty` / `error` / `unmatched`) and `completeness` lists which sources actually priced this game's sides. A provider that errored is distinguishable from one with genuinely no markets. When nothing is usable the call fails instead of returning an empty success.
 - `arbitrage_check` is built from reference prices and is labelled `price_basis: "reference"`. Confirm both legs on each venue's order book before treating it as executable.
+
+### Gemini coverage per command
+
+| Command | Gemini |
+|---|---|
+| `search_entity` | Searched with no `sport` or `nba`, `wnba`, `nfl`, `cfb`, `mlb`, `nhl`, `epl`, `laliga`, `mls`, `ligamx`, `ufc`, `f1`, `golf`; results under `gemini` (grouped by game event, child markets included, soccer three-way outcomes kept as home/away/tie with no fabricated prices) |
+| `get_todays_markets` | `gemini_markets` per game for `nba`, `wnba`, `nfl`, `cfb`, `mlb`, `nhl`; other scoreboard sports skip Gemini |
+| `compare_odds` | `nba` only; other sports leave Gemini out of `sources`. See admission rules below |
+| `normalize_price` | `source="gemini"`: 0-1 probability; values outside [0, 1] or NaN are an error |
+| `evaluate_market`, `match_markets`, `get_sport_markets`, `get_market_price`, `get_price_history`, `compare_market_url` | Not supported |
+
+`compare_odds` admits a Gemini market only when it is the single active `moneyline`/`contest`/`full_contest` event of the same league, its `startTime` equals ESPN's start instant, and it has exactly two active, open, non-combo contracts whose sides agree with ESPN's teams and whose buy-YES prices are both in (0, 1). The quote is that buy-YES price from a cached public snapshot (`execution_guaranteed: false`). Everything else (spreads, totals, props, periods, combos, three-way markets, closed/settled contracts, missing/malformed prices, another start, duplicate candidates) is refused with a reason in `sources.gemini.detail`. A failed search is `error`; partial scans are reported in `sources.gemini.warnings`.
 
 ### `match_markets` notes
 
@@ -81,6 +93,7 @@ Different sources use different formats. `normalize_price` converts any format t
 | ESPN | American odds | `-150` | Favorite, implied 60% |
 | Polymarket | Probability (0-1) | `0.65` | 65% implied probability |
 | Kalshi | Integer (0-100) | `65` | 65% implied probability |
+| Gemini | Probability (0-1) | `0.51` | 51% implied probability (rejected outside [0, 1]) |
 
 **Normalized output shape:**
 ```json

@@ -62,7 +62,9 @@ def _req(**kwargs):
 
 
 def get_todays_markets(*, sport: str | None = None, date: str | None = None) -> dict:
-    """Fetch ESPN schedule, search Kalshi, Polymarket, ProphetX and Novig, return unified dashboard.
+    """Fetch ESPN schedule, search Kalshi, Polymarket, ProphetX, Novig and Gemini, return unified dashboard.
+
+    Gemini discovery covers nba, wnba, nfl, cfb, mlb and nhl; other scoreboard sports skip it.
 
     Args:
         sport: Sport key (nba, nfl, mlb, nhl, wnba, cfb, cbb). Omit for all sports.
@@ -72,7 +74,10 @@ def get_todays_markets(*, sport: str | None = None, date: str | None = None) -> 
 
 
 def search_entity(*, query: str, sport: str | None = None) -> dict:
-    """Search Kalshi, Polymarket, ProphetX and Novig for a team, player, or event name.
+    """Search Kalshi, Polymarket, ProphetX, Novig and Gemini for a team, player, or event name.
+
+    Gemini discovery accepts no sport or nba, wnba, nfl, cfb, mlb, nhl, epl,
+    laliga, mls, ligamx, ufc, f1 or golf; other sports skip it.
 
     Args:
         query: Search query (e.g. "Lakers", "Patrick Mahomes", "Super Bowl").
@@ -84,7 +89,7 @@ def search_entity(*, query: str, sport: str | None = None) -> dict:
 def compare_odds(*, sport: str, event_id: str) -> dict:
     """ESPN odds + prediction market prices, normalized side-by-side + arb check.
 
-    Searches Kalshi, Polymarket, ProphetX and Novig. ``side_prices`` lists, per
+    Searches Kalshi, Polymarket, ProphetX, Novig and (nba only) Gemini. ``side_prices`` lists, per
     side, only the quotes admitted as this game's full-game moneyline, with the
     lowest as ``lowest_reference`` — a reference price, not an executable or
     fee-adjusted quote. Raw ``*_markets`` lists are discovery only.
@@ -102,7 +107,7 @@ def compare_market_url(*, url: str) -> dict:
     The link is never fetched. Its validated slug/ticker is resolved through
     the venue API to ONE open full-game moneyline, matched to ONE ESPN game by
     teams and date, then compared via compare_odds (Kalshi, Polymarket,
-    ProphetX, Novig). ``source_market`` carries the resolved source and
+    ProphetX, Novig and NBA-only Gemini). ``source_market`` carries the resolved source and
     ``in_downstream_search``. Same-game moneyline only, no settlement equivalence.
 
     UEFA Champions League links (polymarket.com/sports/ucl/<slug>,
@@ -297,7 +302,7 @@ def normalize_price(*, price: float, source: str) -> dict:
 
     Args:
         price: The price/odds value to normalize.
-        source: Source platform — "polymarket", "novig", "kalshi", "espn", or "prophetx".
+        source: Source platform — "polymarket", "novig", "gemini", "kalshi", "espn", or "prophetx".
     """
     return _normalize_price(_req(price=price, source=source))
 

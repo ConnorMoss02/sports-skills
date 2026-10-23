@@ -1,0 +1,568 @@
+{
+  "data": [
+    {
+      "id": "366162",
+      "title": "Minnesota vs Orlando",
+      "slug": "minnesota-vs-orlando",
+      "type": "categorical",
+      "category": "Sports",
+      "ticker": "NBA-2610232300-MIN-ORL-M",
+      "status": "active",
+      "createdAt": "2026-10-20T00:01:18.478Z",
+      "contracts": [
+        {
+          "id": "366162-858592",
+          "label": "Orlando",
+          "prices": {
+            "buy": {
+              "yes": "0.51",
+              "no": "0.51"
+            },
+            "sell": {
+              "yes": "0.49",
+              "no": "0.49"
+            },
+            "bestBid": "0.49",
+            "bestAsk": "0.51",
+            "lastTradePrice": "0.43"
+          },
+          "status": "active",
+          "createdAt": "2026-10-20T00:01:18.478Z",
+          "ticker": "ORL",
+          "instrumentSymbol": "GEMI-NBA-2610232300-MIN-ORL-M-ORL",
+          "marketState": "open",
+          "abbreviatedName": "ORL",
+          "expiryDate": "2026-10-25T11:00:00.000Z",
+          "effectiveDate": "2026-10-20T00:00:06.000Z",
+          "sortOrder": 2,
+          "sportsSide": "home",
+          "teamId": "583ed157-fb46-11e1-82cb-f4ce4684ea4c",
+          "isCombo": false
+        },
+        {
+          "id": "366162-858591",
+          "label": "Minnesota",
+          "prices": {
+            "buy": {
+              "yes": "0.5",
+              "no": "0.51"
+            },
+            "sell": {
+              "yes": "0.49",
+              "no": "0.5"
+            },
+            "bestBid": "0.49",
+            "bestAsk": "0.5",
+            "lastTradePrice": "0.53"
+          },
+          "status": "active",
+          "createdAt": "2026-10-20T00:01:18.478Z",
+          "ticker": "MIN",
+          "instrumentSymbol": "GEMI-NBA-2610232300-MIN-ORL-M-MIN",
+          "marketState": "open",
+          "abbreviatedName": "MIN",
+          "expiryDate": "2026-10-25T11:00:00.000Z",
+          "effectiveDate": "2026-10-20T00:00:06.000Z",
+          "sortOrder": 1,
+          "sportsSide": "away",
+          "teamId": "583eca2f-fb46-11e1-82cb-f4ce4684ea4c",
+          "isCombo": false
+        }
+      ],
+      "effectiveDate": "2026-10-20T00:01:18.478Z",
+      "isLive": true,
+      "participants": [
+        {
+          "id": "469",
+          "name": "Orlando Magic",
+          "abbreviation": "ORL",
+          "side": "home"
+        },
+        {
+          "id": "480",
+          "name": "Minnesota Timberwolves",
+          "abbreviation": "MIN",
+          "side": "away"
+        }
+      ],
+      "description": "Minnesota vs Orlando",
+      "volume": "1969.95",
+      "volume24h": "1815.16",
+      "tags": [
+        "Pro Basketball"
+      ],
+      "expiryDate": "2026-10-25T11:00:00.000Z",
+      "startTime": "2026-10-23T23:00:00.000Z",
+      "subcategory": {
+        "id": 14,
+        "slug": "sports_basketball_pro-basketball",
+        "name": "Pro Basketball",
+        "path": [
+          "Sports",
+          "Basketball",
+          "Pro Basketball"
+        ]
+      },
+      "events": [
+        {
+          "id": "372681",
+          "title": "Minnesota vs Orlando: Point Spread",
+          "slug": "minnesota-vs-orlando-point-spread",
+          "type": "categorical",
+          "category": "Sports",
+          "ticker": "NBA-2610232300-MIN-ORL-S",
+          "status": "active",
+          "createdAt": "2026-10-22T04:11:06.192Z",
+          "contracts": [
+            {
+              "id": "372681-872758",
+              "label": "Orlando wins by more than 1.5 points",
+              "prices": {
+                "buy": {
+                  "yes": "0.48",
+                  "no": "0.53"
+                },
+                "sell": {
+                  "yes": "0.47",
+                  "no": "0.52"
+                },
+                "bestBid": "0.47",
+                "bestAsk": "0.48"
+              },
+              "status": "active",
+              "createdAt": "2026-10-22T04:11:06.192Z",
+              "ticker": "ORL1",
+              "instrumentSymbol": "GEMI-NBA-2610232300-MIN-ORL-S-ORL1",
+              "marketState": "open",
+              "abbreviatedName": "Orlando",
+              "expiryDate": "2026-10-25T11:00:00.000Z",
+              "effectiveDate": "2026-10-20T00:00:06.000Z",
+              "sortOrder": 20,
+              "strike": {
+                "type": "spread",
+                "value": "1.5"
+              },
+              "isCombo": false
+            },
+            {
+              "id": "372681-872770",
+              "label": "Minnesota wins by more than 1.5 points",
+              "prices": {
+                "buy": {
+                  "yes": "0.47",
+                  "no": "0.54"
+                },
+                "sell": {
+                  "yes": "0.46",
+                  "no": "0.53"
+                },
+                "bestBid": "0.46",
+                "bestAsk": "0.47",
+                "lastTradePrice": "0.51"
+              },
+              "status": "active",
+              "createdAt": "2026-10-22T04:11:06.192Z",
+              "ticker": "MIN1",
+              "instrumentSymbol": "GEMI-NBA-2610232300-MIN-ORL-S-MIN1",
+              "marketState": "open",
+              "abbreviatedName": "Minnesota",
+              "expiryDate": "2026-10-25T11:00:00.000Z",
+              "effectiveDate": "2026-10-20T00:00:06.000Z",
+              "sortOrder": 32,
+              "strike": {
+                "type": "spread",
+                "value": "1.5"
+              },
+              "isCombo": false
+            },
+            {
+              "id": "372681-872750",
+              "label": "Orlando wins by more than 26.5 points",
+              "prices": {
+                "buy": {
+                  "yes": "0.06"
+                },
+                "sell": {
+                  "no": "0.94"
+                },
+                "bestAsk": "0.06"
+              },
+              "status": "active",
+              "createdAt": "2026-10-22T04:11:06.192Z",
+              "ticker": "ORL26",
+              "instrumentSymbol": "GEMI-NBA-2610232300-MIN-ORL-S-ORL26",
+              "marketState": "open",
+              "abbreviatedName": "Orlando",
+              "expiryDate": "2026-10-25T11:00:00.000Z",
+              "effectiveDate": "2026-10-20T00:00:06.000Z",
+              "sortOrder": 12,
+              "strike": {
+                "type": "spread",
+                "value": "26.5"
+              },
+              "isCombo": false
+            }
+          ],
+          "effectiveDate": "2026-10-22T04:11:06.192Z",
+          "isLive": true,
+          "participants": [
+            {
+              "id": "469",
+              "name": "Orlando Magic",
+              "abbreviation": "ORL",
+              "side": "home"
+            },
+            {
+              "id": "480",
+              "name": "Minnesota Timberwolves",
+              "abbreviation": "MIN",
+              "side": "away"
+            }
+          ],
+          "description": "What will the point difference be?",
+          "volume": "68.43",
+          "volume24h": "68.43",
+          "tags": [
+            "Pro Basketball"
+          ],
+          "expiryDate": "2026-10-25T11:00:00.000Z",
+          "startTime": "2026-10-23T23:00:00.000Z",
+          "template": "sports-spread",
+          "gameId": "311289f4-66d3-454b-ae4a-b59506604a7b",
+          "sportsMarket": {
+            "sport": "basketball",
+            "type": "spread",
+            "subject": "team",
+            "scope": {
+              "type": "full_contest"
+            },
+            "metric": "points"
+          }
+        },
+        {
+          "id": "372683",
+          "title": "Minnesota vs Orlando: Total Points",
+          "slug": "minnesota-vs-orlando-total-points",
+          "type": "categorical",
+          "category": "Sports",
+          "ticker": "NBA-2610232300-MIN-ORL-T",
+          "status": "active",
+          "createdAt": "2026-10-22T04:13:06.077Z",
+          "contracts": [
+            {
+              "id": "372683-872783",
+              "label": "More than 209.5 points scored",
+              "prices": {
+                "buy": {
+                  "yes": "0.95",
+                  "no": "0.1"
+                },
+                "sell": {
+                  "yes": "0.9",
+                  "no": "0.05"
+                },
+                "bestBid": "0.9",
+                "bestAsk": "0.95"
+              },
+              "status": "active",
+              "createdAt": "2026-10-22T04:13:06.077Z",
+              "ticker": "O209",
+              "instrumentSymbol": "GEMI-NBA-2610232300-MIN-ORL-T-O209",
+              "marketState": "open",
+              "expiryDate": "2026-10-25T11:00:00.000Z",
+              "effectiveDate": "2026-10-20T00:00:06.000Z",
+              "sortOrder": 12,
+              "strike": {
+                "type": "over",
+                "value": "209.5"
+              },
+              "isCombo": false
+            }
+          ],
+          "participants": [
+            {
+              "id": "469",
+              "name": "Orlando Magic",
+              "abbreviation": "ORL",
+              "side": "home"
+            },
+            {
+              "id": "480",
+              "name": "Minnesota Timberwolves",
+              "abbreviation": "MIN",
+              "side": "away"
+            }
+          ],
+          "description": "How many points will be scored?",
+          "volume": "126.01",
+          "volume24h": "126.01",
+          "tags": [
+            "Pro Basketball"
+          ],
+          "expiryDate": "2026-10-25T11:00:00.000Z",
+          "startTime": "2026-10-23T23:00:00.000Z",
+          "template": "sports-total",
+          "gameId": "311289f4-66d3-454b-ae4a-b59506604a7b",
+          "sportsMarket": {
+            "sport": "basketball",
+            "type": "total",
+            "subject": "contest",
+            "scope": {
+              "type": "full_contest"
+            },
+            "metric": "points"
+          }
+        }
+      ],
+      "template": "sports-game",
+      "gameId": "311289f4-66d3-454b-ae4a-b59506604a7b",
+      "sportsMarket": {
+        "sport": "basketball",
+        "type": "moneyline",
+        "subject": "contest",
+        "scope": {
+          "type": "full_contest"
+        },
+        "team": {
+          "symbol": "MIN",
+          "name": "Minnesota Timberwolves",
+          "externalIds": {
+            "sportradarId": "583eca2f-fb46-11e1-82cb-f4ce4684ea4c"
+          }
+        }
+      }
+    },
+    {
+      "id": "364714",
+      "title": "Nottingham vs Ipswich",
+      "slug": "nottingham-vs-ipswich",
+      "type": "categorical",
+      "category": "Sports",
+      "ticker": "EPL-2610231900-NFO-IPS-M",
+      "status": "active",
+      "createdAt": "2026-10-19T14:42:11.467Z",
+      "contracts": [
+        {
+          "id": "364714-855821",
+          "label": "Nottingham",
+          "prices": {
+            "buy": {
+              "yes": "0.43",
+              "no": "0.59"
+            },
+            "sell": {
+              "yes": "0.41",
+              "no": "0.57"
+            },
+            "bestBid": "0.41",
+            "bestAsk": "0.43",
+            "lastTradePrice": "0.42"
+          },
+          "status": "active",
+          "createdAt": "2026-10-19T14:42:11.467Z",
+          "ticker": "NFO",
+          "instrumentSymbol": "GEMI-EPL-2610231900-NFO-IPS-M-NFO",
+          "marketState": "open",
+          "abbreviatedName": "NFO",
+          "expiryDate": "2026-10-25T07:00:00.000Z",
+          "effectiveDate": "2026-10-19T14:42:00.000Z",
+          "sortOrder": 2,
+          "sportsSide": "away",
+          "teamId": "sr:competitor:14",
+          "isCombo": false
+        },
+        {
+          "id": "364714-855820",
+          "label": "Ipswich",
+          "prices": {
+            "buy": {
+              "yes": "0.31",
+              "no": "0.7"
+            },
+            "sell": {
+              "yes": "0.3",
+              "no": "0.69"
+            },
+            "bestBid": "0.3",
+            "bestAsk": "0.31"
+          },
+          "status": "active",
+          "createdAt": "2026-10-19T14:42:11.467Z",
+          "ticker": "IPS",
+          "instrumentSymbol": "GEMI-EPL-2610231900-NFO-IPS-M-IPS",
+          "marketState": "open",
+          "abbreviatedName": "IPS",
+          "expiryDate": "2026-10-25T07:00:00.000Z",
+          "effectiveDate": "2026-10-19T14:42:00.000Z",
+          "sortOrder": 1,
+          "sportsSide": "home",
+          "teamId": "sr:competitor:32",
+          "isCombo": false
+        },
+        {
+          "id": "364714-855822",
+          "label": "Tie",
+          "prices": {
+            "buy": {
+              "yes": "0.28",
+              "no": "0.73"
+            },
+            "sell": {
+              "yes": "0.27",
+              "no": "0.72"
+            },
+            "bestBid": "0.27",
+            "bestAsk": "0.28"
+          },
+          "status": "active",
+          "createdAt": "2026-10-19T14:42:11.467Z",
+          "ticker": "D",
+          "instrumentSymbol": "GEMI-EPL-2610231900-NFO-IPS-M-D",
+          "marketState": "open",
+          "abbreviatedName": "D",
+          "expiryDate": "2026-10-25T07:00:00.000Z",
+          "effectiveDate": "2026-10-19T14:42:00.000Z",
+          "sortOrder": 3,
+          "sportsSide": "tie",
+          "isCombo": false
+        }
+      ],
+      "effectiveDate": "2026-10-19T14:42:11.467Z",
+      "isLive": true,
+      "participants": [
+        {
+          "id": "1208",
+          "name": "Ipswich Town",
+          "abbreviation": "IPS",
+          "side": "home"
+        },
+        {
+          "id": "960",
+          "name": "Nottingham Forest",
+          "abbreviation": "NFO",
+          "side": "away"
+        }
+      ],
+      "description": "Nottingham vs Ipswich",
+      "volume": "4.57",
+      "volume24h": "4.57",
+      "tags": [
+        "EPL"
+      ],
+      "expiryDate": "2026-10-25T07:00:00.000Z",
+      "startTime": "2026-10-23T19:00:00.000Z",
+      "subcategory": {
+        "id": 81,
+        "slug": "sports_soccer_epl",
+        "name": "EPL",
+        "path": [
+          "Sports",
+          "Soccer",
+          "EPL"
+        ]
+      },
+      "events": [
+        {
+          "id": "364853",
+          "title": "Nottingham vs Ipswich: Point Spread",
+          "slug": "nottingham-vs-ipswich-point-spread",
+          "type": "categorical",
+          "category": "Sports",
+          "ticker": "EPL-2610231900-NFO-IPS-REGS",
+          "status": "active",
+          "createdAt": "2026-10-19T14:53:03.851Z",
+          "contracts": [
+            {
+              "id": "364853-856452",
+              "label": "Reg Time: Nottingham wins by more than 1.5 goals",
+              "prices": {
+                "buy": {
+                  "yes": "0.21",
+                  "no": "0.8"
+                },
+                "sell": {
+                  "yes": "0.2",
+                  "no": "0.79"
+                },
+                "bestBid": "0.2",
+                "bestAsk": "0.21",
+                "lastTradePrice": "0.2"
+              },
+              "status": "active",
+              "createdAt": "2026-10-19T14:53:03.851Z",
+              "ticker": "NFO1",
+              "instrumentSymbol": "GEMI-EPL-2610231900-NFO-IPS-REGS-NFO1",
+              "marketState": "open",
+              "abbreviatedName": "Nottingham",
+              "expiryDate": "2026-10-25T07:00:00.000Z",
+              "effectiveDate": "2026-10-19T14:42:00.000Z",
+              "sortOrder": 1,
+              "strike": {
+                "type": "spread",
+                "value": "1.5"
+              },
+              "isCombo": false
+            }
+          ],
+          "effectiveDate": "2026-10-19T14:53:03.851Z",
+          "isLive": true,
+          "participants": [
+            {
+              "id": "1208",
+              "name": "Ipswich Town",
+              "abbreviation": "IPS",
+              "side": "home"
+            },
+            {
+              "id": "960",
+              "name": "Nottingham Forest",
+              "abbreviation": "NFO",
+              "side": "away"
+            }
+          ],
+          "description": "What will the goal difference be?",
+          "volume": "14.2",
+          "volume24h": "14.2",
+          "tags": [
+            "EPL"
+          ],
+          "expiryDate": "2026-10-25T07:00:00.000Z",
+          "startTime": "2026-10-23T19:00:00.000Z",
+          "template": "sports-spread",
+          "gameId": "sr:sport_event:72221344",
+          "sportsMarket": {
+            "sport": "soccer",
+            "type": "spread",
+            "subject": "team",
+            "scope": {
+              "type": "regulation"
+            },
+            "metric": "goals"
+          }
+        }
+      ],
+      "template": "sports-game",
+      "gameId": "sr:sport_event:72221344",
+      "sportsMarket": {
+        "sport": "soccer",
+        "type": "moneyline",
+        "subject": "contest",
+        "scope": {
+          "type": "regulation"
+        },
+        "team": {
+          "symbol": "NFO",
+          "name": "Nottingham Forest",
+          "externalIds": {
+            "sportradarId": "sr:competitor:14"
+          }
+        }
+      }
+    }
+  ],
+  "pagination": {
+    "limit": 10,
+    "offset": 0,
+    "total": 764
+  }
+}

@@ -206,6 +206,13 @@ _REGISTRY = {
         "search_markets": {"optional": ["query", "league", "market_type", "limit"]},
         "get_todays_events": {"optional": ["league", "limit"]},
     },
+    "gemini": {
+        # Public read-only prediction-market events (prices on contracts).
+        "get_events": {"optional": ["league", "status", "limit", "offset"]},
+        "get_event": {"required": ["event_ticker"]},
+        "search_markets": {"optional": ["query", "league", "market_type", "limit"]},
+        "get_todays_events": {"optional": ["league", "limit"]},
+    },
     "esports": {
         "get_pro_matches": {"optional": ["limit", "less_than_match_id"]},
         "get_leagues": {"optional": ["tier", "limit"]},
@@ -699,6 +706,10 @@ def _load_module(name):
         from sports_skills import novig
 
         return novig
+    elif name == "gemini":
+        from sports_skills import gemini
+
+        return gemini
     elif name == "esports":
         from sports_skills import esports
 
@@ -1127,7 +1138,7 @@ def main():
     parser.add_argument(
         "module",
         nargs="?",
-        help="Module name: football, f1, nfl, nba, wnba, nhl, mlb, tennis, cricket, cfb, cbb, golf, volleyball, xctf, esports, polymarket, polymarket-trading, kalshi, prophetx, novig, betting, markets, metadata, news",
+        help="Module name: football, f1, nfl, nba, wnba, nhl, mlb, tennis, cricket, cfb, cbb, golf, volleyball, xctf, esports, polymarket, polymarket-trading, kalshi, prophetx, novig, gemini, betting, markets, metadata, news",
     )
     parser.add_argument("command", nargs="?", help="Command name (e.g., get_season_standings)")
     parser.add_argument("--version", action="store_true", help="Show version")

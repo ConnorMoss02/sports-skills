@@ -4037,7 +4037,7 @@ wheels = [
 
 [[package]]
 name = "sports-skills"
-version = "0.37.2"
+version = "0.38.0"
 source = { editable = "." }
 dependencies = [
     { name = "feedparser" },
