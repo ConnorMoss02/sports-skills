@@ -15,23 +15,24 @@ def test_non_release_paths_defer_to_other_ignore_hooks():
     assert collection_policy.pytest_ignore_collect(Path("tests/test_markets.py"), None) is None
 
 
+def test_active_release_proof_defers_to_other_ignore_hooks(monkeypatch):
+    monkeypatch.delenv("SPORTS_SKILLS_VERIFY_RELEASE_036", raising=False)
+    monkeypatch.delenv("SPORTS_SKILLS_VERIFY_RELEASE_037", raising=False)
+    assert collection_policy.pytest_ignore_collect(Path("tests/test_release_038.py"), None) is None
+
+
 @pytest.mark.parametrize(
-    "name,variable",
+    ("name", "variable", "other"),
     [
-        ("test_release_036.py", "SPORTS_SKILLS_VERIFY_RELEASE_036"),
-        ("test_release_037.py", "SPORTS_SKILLS_VERIFY_RELEASE_037"),
+        ("test_release_036.py", "SPORTS_SKILLS_VERIFY_RELEASE_036", "SPORTS_SKILLS_VERIFY_RELEASE_037"),
+        ("test_release_037.py", "SPORTS_SKILLS_VERIFY_RELEASE_037", "SPORTS_SKILLS_VERIFY_RELEASE_036"),
     ],
 )
-def test_release_proof_is_opt_in(monkeypatch, name, variable):
+def test_historical_release_proof_is_opt_in(monkeypatch, name, variable, other):
     path = Path("tests") / name
     monkeypatch.delenv(variable, raising=False)
+    monkeypatch.setenv(other, "1")
     assert collection_policy.pytest_ignore_collect(path, None) is True
 
     monkeypatch.setenv(variable, "1")
     assert collection_policy.pytest_ignore_collect(path, None) is False
-
-
-def test_one_release_variable_does_not_enable_another(monkeypatch):
-    monkeypatch.delenv("SPORTS_SKILLS_VERIFY_RELEASE_037", raising=False)
-    monkeypatch.setenv("SPORTS_SKILLS_VERIFY_RELEASE_036", "1")
-    assert collection_policy.pytest_ignore_collect(Path("tests/test_release_037.py"), None) is True

@@ -1,4 +1,4 @@
-"""Release gates for the sports-skills 0.37.1 distribution candidate."""
+"""Release gates for the sports-skills 0.37.2 distribution candidate."""
 
 import email
 import hashlib
@@ -16,11 +16,11 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "0.37.1"
+VERSION = "0.37.2"
 TAG = f"v{VERSION}"
-REVIEWED_SOURCE_COMMIT = "f0f282299696c70b9f51dd6ed2de4db7cc229f8f"
-REVIEWED_SOURCE_TREE = "0719c977c497f7b974d16d1f1cc5bd54f34665d1"
-SOURCE_DATE_EPOCH = 1791767494
+REVIEWED_SOURCE_COMMIT = "dcee1cccf53adaf8d02851967a97b802157d4f55"
+REVIEWED_SOURCE_TREE = "b939732ca5dc1e7be90f1f7a6921c57330d2255f"
+SOURCE_DATE_EPOCH = 1792183735
 AUTHORITY = ROOT / "release" / VERSION / "SHA256SUMS"
 REVIEW_RECEIPT = ROOT / "release" / VERSION / "review-receipt.json"
 WHEEL_NAME = f"sports_skills-{VERSION}-py3-none-any.whl"
@@ -63,18 +63,18 @@ def release_builds(tmp_path_factory):
     return _build(first), _build(second)
 
 
-def test_every_active_version_surface_is_0371():
+def test_every_active_version_surface_is_0372():
     pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
     package = (ROOT / "src/sports_skills/__init__.py").read_text(encoding="utf-8")
     phase1 = (ROOT / "src/sports_skills/canonical/_phase1.py").read_text(encoding="utf-8")
     lock = (ROOT / "uv.lock").read_text(encoding="utf-8")
     changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
 
-    assert re.search(r'^version = "0\.37\.1"$', pyproject, re.MULTILINE)
-    assert re.search(r'^__version__ = "0\.37\.1"$', package, re.MULTILINE)
-    assert '"package_version": "0.37.1"' in phase1
-    assert re.search(r'(?ms)^name = "sports-skills"\nversion = "0\.37\.1"$', lock)
-    assert changelog.startswith("## [0.37.1]\n")
+    assert re.search(r'^version = "0\.37\.2"$', pyproject, re.MULTILINE)
+    assert re.search(r'^__version__ = "0\.37\.2"$', package, re.MULTILINE)
+    assert '"package_version": "0.37.2"' in phase1
+    assert re.search(r'(?ms)^name = "sports-skills"\nversion = "0\.37\.2"$', lock)
+    assert changelog.startswith("## [0.37.2]\n")
 
 
 def test_release_source_and_epoch_match_review_receipt():

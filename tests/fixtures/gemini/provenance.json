@@ -1,0 +1,17 @@
+{
+  "retrieved_at": "2026-10-23",
+  "auth": "none (public, unauthenticated GET; HTTP 200)",
+  "sources": {
+    "events_sample.json": "GET https://api.gemini.com/v1/prediction-markets/events?category=Sports&status=active&limit=10 (two of the ten returned events kept: NBA-2610232300-MIN-ORL-M and EPL-2610231900-NFO-IPS-M)",
+    "schema": "https://developer.gemini.com/specs/openapi/prediction-markets.yaml"
+  },
+  "trimming": [
+    "Every kept value is byte-identical to the capture; only keys, nested child events and contracts were removed.",
+    "Contracts: rich-text description, termsAndConditionsUrl, color, imageUrl and quantity/price increment fields dropped.",
+    "Events: imageUrl, socialImageUrl, featuredImageUrl, termsLink, eventTags, sourceDetails and volumeDelta24hPct dropped.",
+    "NBA spread child keeps 3 of its contracts (ORL1, MIN1, and the one-sided ORL26 with no bid); NBA total child keeps 1 (O209).",
+    "EPL keeps its spread child with 1 contract (NFO1); its total-goals child was dropped.",
+    "pagination is the capture's own (total 764), not recomputed for the trimmed list."
+  ],
+  "synthetic": "tests/test_gemini.py derives edge cases (wrong date, closed, combo, malformed prices, duplicates, period scope, three-way NBA) from deep copies of these events; each such copy is labelled synthetic where it is built."
+}

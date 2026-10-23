@@ -102,6 +102,7 @@ npx skills add machina-sports/sports-skills@nba-data
 | [`kalshi`](https://skills.sh/machina-sports/sports-skills/kalshi) | Kalshi (CFTC-regulated) | 16 | Soccer, Basketball, Baseball, Tennis, NFL, Hockey, Esports (CS2/LoL/Dota2) |
 | [`polymarket`](https://skills.sh/machina-sports/sports-skills/polymarket) | Polymarket | 14 | NFL, NBA, MLB, Soccer, Tennis, Cricket, MMA, Esports — read-only |
 | [`prophetx`](https://skills.sh/machina-sports/sports-skills/prophetx) | ProphetX exchange | 7 | Soccer, Tennis, Basketball, MLB, NFL, NHL — markets + exchange odds where a public book exists (`selections_available`); read-only |
+| [`gemini`](https://skills.sh/machina-sports/sports-skills/gemini) | Gemini Predictions | 4 | NBA, WNBA, NFL, CFB, MLB, NHL, EPL, La Liga, MLS, Liga MX, UFC, F1, Golf — events + contract prices as cached snapshot probabilities; read-only |
 | `polymarket-trading` | Polymarket CLOB | 7 | High-risk wallet-backed order placement/cancel; explicit user approval required |
 
 ### Tools & Workflows
@@ -109,7 +110,7 @@ npx skills add machina-sports/sports-skills@nba-data
 | Skill | Purpose | Commands | Notes |
 |-------|---------|----------|-------|
 | [`betting`](https://skills.sh/machina-sports/sports-skills/betting) | Odds math & bet evaluation | 9 | Pure compute — no API calls |
-| [`markets`](https://skills.sh/machina-sports/sports-skills/markets) | ESPN ↔ Kalshi ↔ Polymarket orchestration | 14 | Unified dashboards, live ticks, cross-platform comparison |
+| [`markets`](https://skills.sh/machina-sports/sports-skills/markets) | ESPN ↔ Kalshi, Polymarket, ProphetX, Novig, Gemini orchestration | 14 | Unified dashboards, live ticks, cross-platform comparison |
 | [`sports-reporter`](https://skills.sh/machina-sports/sports-skills/sports-reporter) | Original sports journalism | prompt-only | Composes other skills to write articles |
 | [`espn-api`](https://skills.sh/machina-sports/sports-skills/espn-api) | Raw ESPN API reference for leagues without a dedicated skill | prompt-only | Raw provider-native JSON, no record/replay — see [Dedicated Skills vs Reference-Only Coverage](#dedicated-skills-vs-reference-only-coverage) |
 | [`machina`](https://skills.sh/machina-sports/sports-skills/machina) | Gateway to Machina premium / licensed data | prompt-only | Routes to `machina-cli` + MCP |

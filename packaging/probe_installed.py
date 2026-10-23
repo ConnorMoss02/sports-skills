@@ -10,7 +10,7 @@ import sys
 import types
 from pathlib import Path
 
-VERSION = "0.37.1"
+VERSION = "0.38.0"
 
 distribution = importlib.metadata.distribution("sports-skills")
 if distribution.version != VERSION:

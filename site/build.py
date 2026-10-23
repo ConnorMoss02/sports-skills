@@ -69,6 +69,7 @@ SLUG_TO_CLI_MODULE = {
     "polymarket-trading": "polymarket-trading",
     "prophetx": "prophetx",
     "novig": "novig",
+    "gemini": "gemini",
     "betting": "betting",
     "markets": "markets",
     "metadata": "metadata",
