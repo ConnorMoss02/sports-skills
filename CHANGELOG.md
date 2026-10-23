@@ -2,9 +2,12 @@
 
 ### Added
 - **football: Italian Serie B.** Register `serie-b` with ESPN `ita.2` and football-data.co.uk `I2`, including standings, schedules and historical head-to-head coverage.
+- **nfl, cfb: situation and source times on each play.** Plays add `sequence_number`, `is_penalty`, `start` / `end` down-distance-field-position (`null` when ESPN sends none; a 0 stays 0), and ESPN's `wallclock` and `modified`. The response adds `game_state` and `retrieved_at`.
 
 ### Fixed
 - **football: team-name matching.** Require containment to start at a word boundary, including punctuation, so `Remo` does not match `Cremonese` while `Glimt` still matches `Bodo/Glimt`.
+- **nfl, cfb: play-by-play now includes the drive being played.** `get_play_by_play` read only ESPN's `drives.previous` and ignored `drives.current`, so during a game the plays of the drive in progress were missing until the drive ended, and a summary carrying only `current` returned no drives. Drives and plays are now merged by ESPN ID (never by description or clock): a drive repeated in `previous` and `current` appears once, a revised play keeps its most recently `modified` copy, and the drive in progress is flagged `is_current` with `current_drive_id` at the top level. Plays with missing or null IDs remain distinct.
+- **espn: live game summaries are no longer cached for five minutes.** `espn_summary` now caches a game in progress (`state: in`) for 10 seconds; finished and scheduled games keep 5 minutes. Each summary records `retrieved_at`, the time sports-skills received it, separately from ESPN's own play times. Malformed competition containers no longer raise during game-state extraction.
 
 ## [0.38.0]
 
