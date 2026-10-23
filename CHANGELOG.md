@@ -1,3 +1,12 @@
+## [0.38.0]
+
+### Added
+- **gemini: read-only Gemini Predictions data.** Four credential-free commands (`get_events`, `get_event`, `search_markets`, `get_todays_events`) cover public sports events for nba/wnba/nfl/cfb/mlb/nhl/epl/laliga/mls/ligamx/ufc/f1/golf. Contract prices are 0-1 cached snapshots, not executable quotes; missing prices are `null`. GET only, no credentials, redirects refused, 403/429 reported without retries. Bounded scans report `truncated` and `warnings`.
+- **markets: Gemini as a provider.** Gemini joins search, today's dashboard (NBA/WNBA/NFL/CFB/MLB/NHL) and `normalize_price`. Comparison includes Gemini for NBA only until settlement equivalence is verified elsewhere; `compare_market_url`, `get_market_price` and `get_price_history` do not support Gemini.
+
+### Fixed
+- **gemini: resilient event search.** Malformed event titles no longer fail the full search; participant-name matching and unaffected results remain available (#194).
+
 ## [0.37.2]
 
 ### Fixed
