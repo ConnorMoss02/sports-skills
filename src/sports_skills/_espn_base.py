@@ -851,6 +851,17 @@ def _current_year():
     return datetime.datetime.utcnow().year
 
 
+def _end_year_season():
+    """Return the current season for leagues ESPN names by the year they end.
+
+    ESPN calls the NBA, NHL and college basketball 2026-27 season ``2027``.
+    Their regular seasons open in October, so from then on the current season
+    ends next year; before that it is the one ending this year.
+    """
+    now = datetime.datetime.utcnow()
+    return now.year + 1 if now.month >= 10 else now.year
+
+
 def fill_team_divisions(groups, division_data):
     """Set ``division`` on each standings entry from a ``level=3`` standings payload.
 
