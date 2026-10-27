@@ -4,7 +4,8 @@
 
 ### get_scoreboard
 Get live/recent tennis scores for a tour.
-- `tour` (str, required): "atp" or "wta"
+- `tour` (str, optional): "atp" or "wta". Omit to fetch both tours.
+- `date` (str, optional): Date in YYYY-MM-DD format. Defaults to today.
 
 Returns current tournament info with matches organized by round including player names, set scores, and match status.
 
@@ -27,7 +28,6 @@ ESPN has no light calendar endpoint: the only source is the full-year scoreboard
 ### get_player_info
 Get individual tennis player profile.
 - `player_id` (str, required): ESPN athlete ID
-- `tour` (str, optional): "atp" or "wta". Defaults to "atp".
 
 Returns player details: name, nationality, birthplace, height, turned pro year, career titles, and recent match history.
 
