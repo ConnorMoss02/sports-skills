@@ -2,6 +2,8 @@
 
 import datetime as _dt
 import json
+import re
+from pathlib import Path
 
 import pytest
 
@@ -121,3 +123,92 @@ def test_start_year_leagues_are_unchanged(frozen, core_paths):
     asked = core_paths(nfl)
     nfl.get_futures({"params": {}})
     assert asked[0] == "seasons/2026/futures"
+
+
+@pytest.mark.parametrize("mod", _END_YEAR, ids=_IDS)
+@pytest.mark.parametrize("date,season", [((2026, 9, 30), 2026), ((2026, 10, 1), 2027)], ids=["sep30", "oct1"])
+def test_the_default_season_turns_over_on_october_first(mod, date, season, frozen, core_paths):
+    frozen(*date)
+    asked = core_paths(mod)
+    mod.get_futures({"params": {}})
+    assert asked == [f"seasons/{season}/futures"]
+
+
+@pytest.fixture
+def empty_2027(monkeypatch):
+    """ESPN has nothing for 2027 yet; 2026 answers."""
+    asked = []
+
+    def serve(mod):
+        def core(sport, path, *a, **k):
+            asked.append(path)
+            return {"error": True, "message": "not found"} if path.startswith("seasons/2027/") else {"items": []}
+
+        monkeypatch.setattr(mod, "espn_core_request", core)
+        return asked
+
+    return serve
+
+
+@pytest.mark.parametrize("mod", _END_YEAR, ids=_IDS)
+def test_an_implied_season_with_no_data_falls_back_a_year(mod, frozen, empty_2027):
+    frozen(2026, 10, 1)
+    asked = empty_2027(mod)
+    result = mod.get_futures({"params": {}})
+    assert asked == ["seasons/2027/futures", "seasons/2026/futures"]
+    assert result["season_year"] == 2026
+    assert "returned 2026" in result["warnings"][0]
+
+
+@pytest.mark.parametrize("mod", _END_YEAR, ids=_IDS)
+def test_an_explicit_season_with_no_data_does_not_fall_back(mod, frozen, empty_2027):
+    frozen(2026, 10, 1)
+    asked = empty_2027(mod)
+    result = mod.get_futures({"params": {"season_year": 2027}})
+    assert asked == ["seasons/2027/futures"]
+    assert result["error"] is True
+
+
+@pytest.mark.parametrize("mod", _END_YEAR, ids=_IDS)
+def test_an_implied_season_with_an_empty_successful_payload_does_not_fall_back(mod, frozen, core_paths):
+    frozen(2026, 10, 1)
+    asked = core_paths(mod)
+    result = mod.get_futures({"params": {}})
+    assert asked == ["seasons/2027/futures"]
+    assert result["season_year"] == 2027
+    assert "warnings" not in result
+
+
+# Agent-facing docs: ESPN commands take the ENDING year; the native stats backends keep the starting year.
+_SKILLS = Path(__file__).resolve().parents[1] / "skills"
+
+
+def _skill(sport):
+    return (_SKILLS / f"{sport}-data" / "SKILL.md").read_text()
+
+
+def _choosing_the_season(sport):
+    return re.search(r"## Choosing the Season\n(.*?)\n## ", _skill(sport), re.S).group(1)
+
+
+@pytest.mark.parametrize("sport", ["nba", "nhl"])
+def test_skill_doc_names_espn_seasons_by_ending_year(sport):
+    section = _choosing_the_season(sport)
+    assert "2026-27" in section and "`2027`" in section
+    assert re.search(r"February 2026\b.*`2026`", section)
+    assert "omit" in section.lower()
+    assert "started the previous calendar year" not in section
+    assert "matches the current year" not in section
+
+
+@pytest.mark.parametrize("sport", ["nba", "nhl"])
+def test_skill_doc_does_not_tell_agents_to_derive_a_season(sport):
+    text = _skill(sport)
+    assert "<derived_year>" not in text
+    assert "Derive season year from `currentDate`" not in text
+    assert "Season year is derived from" not in text
+
+
+@pytest.mark.parametrize("sport", ["nba", "nhl"])
+def test_skill_doc_keeps_starting_year_for_native_stats_commands(sport):
+    assert "Pass the starting year (`season=2024` means 2024-25)" in _skill(sport)
